@@ -82,6 +82,7 @@ func getBlock(p *Iblock, x int, y int) *Iblock {
 		H:     h,
 		PX:    p.X,
 		PY:    p.Y,
+		PXY:   p.PXY,
 	}
 	return block
 }
@@ -168,6 +169,7 @@ func getOpenOne() *Iblock {
 
 }
 
+// 检查块 如果是 终点 返回true 其他返回false
 func checkBlock(walls map[string]*Iblock, b *Iblock, x int, y int) (bool, *Iblock) {
 	key := GetKey(x, y)
 	// 是否已放入close

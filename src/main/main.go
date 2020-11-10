@@ -282,6 +282,35 @@ func run() {
 			fmt.Fprintln(wall.TxtH, wall.H)
 			wall.TxtH.Draw(win, pixel.IM)
 
+			// 父节点
+			wall.PXY.Clear()
+			if wall.PX > wall.X {
+				fmt.Fprintln(wall.PXY, ">")
+			}
+			if wall.PX < wall.X {
+				fmt.Fprintln(wall.PXY, "<")
+			}
+
+			if wall.PY > wall.Y {
+				fmt.Fprintln(wall.PXY, "^")
+			}
+			if wall.PY < wall.Y {
+				fmt.Fprintln(wall.PXY, "v")
+			}
+
+			//fmt.Fprintln(wall.PXY, strconv.Itoa(wall.PX)+"_"+strconv.Itoa(wall.PY))
+			wall.PXY.Draw(win, pixel.IM)
+
+			// 当前节点X
+			wall.TxtX.Clear()
+			fmt.Fprintln(wall.TxtX, "X:"+strconv.Itoa(wall.X))
+			wall.TxtX.Draw(win, pixel.IM)
+
+			// 当前节点Y
+			wall.TxtY.Clear()
+			fmt.Fprintln(wall.TxtY, "Y:"+strconv.Itoa(wall.Y))
+			wall.TxtY.Draw(win, pixel.IM)
+
 		}
 
 		// 完成
