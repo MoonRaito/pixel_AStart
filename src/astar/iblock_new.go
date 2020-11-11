@@ -1,4 +1,4 @@
-package moon
+package astar
 
 import (
 	"github.com/faiface/pixel"
@@ -32,10 +32,8 @@ type Iblock struct {
 	// 权重
 	rank   float64
 	index  int
-	Open   bool
-	Closed bool
-	cost   float64
-	parent *Iblock
+	open   bool
+	closed bool
 }
 
 func (ib *Iblock) UpdateIblock() {

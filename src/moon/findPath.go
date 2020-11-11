@@ -1,6 +1,7 @@
 package moon
 
 import (
+	"container/heap"
 	"fmt"
 	"github.com/faiface/pixel"
 	"image/color"
@@ -21,6 +22,13 @@ func InitStart(s *Iblock) {
 }
 func InitEnd(e *Iblock) {
 	end = e
+}
+
+func GetStart() *Iblock {
+	return start
+}
+func GetEnd() *Iblock {
+	return end
 }
 
 //
@@ -110,15 +118,17 @@ func FindPathOneOpen(walls map[string]*Iblock, maps [][]string) (bool, *Iblock) 
 		delete(open, key)
 	}
 
-	// 上
-	b, iblock := checkBlock(walls, openOneMin, openOneMin.X, openOneMin.Y+1)
-	if b {
-		return b, iblock
+	// 上 必须在边界内
+	if openOneMin.Y+1 < 8 {
+		b, iblock := checkBlock(walls, openOneMin, openOneMin.X, openOneMin.Y+1)
+		if b {
+			return b, iblock
+		}
 	}
 
 	// 下  必须在边界内
 	if openOneMin.Y-1 >= 0 {
-		b, iblock = checkBlock(walls, openOneMin, openOneMin.X, openOneMin.Y-1)
+		b, iblock := checkBlock(walls, openOneMin, openOneMin.X, openOneMin.Y-1)
 		if b {
 			return b, iblock
 		}
@@ -126,15 +136,17 @@ func FindPathOneOpen(walls map[string]*Iblock, maps [][]string) (bool, *Iblock) 
 
 	// 左  必须在边界内
 	if openOneMin.X-1 >= 0 {
-		b, iblock = checkBlock(walls, openOneMin, openOneMin.X-1, openOneMin.Y)
+		b, iblock := checkBlock(walls, openOneMin, openOneMin.X-1, openOneMin.Y)
 		if b {
 			return b, iblock
 		}
 	}
 	// 右
-	b, iblock = checkBlock(walls, openOneMin, openOneMin.X+1, openOneMin.Y)
-	if b {
-		return b, iblock
+	if openOneMin.X+1 < 10 {
+		b, iblock := checkBlock(walls, openOneMin, openOneMin.X+1, openOneMin.Y)
+		if b {
+			return b, iblock
+		}
 	}
 
 	return false, nil
@@ -212,4 +224,85 @@ func DrawPath(walls map[string]*Iblock, iblock *Iblock) {
 		DrawPath(walls, road)
 	}
 	return
+}
+
+var open_new = &priorityQueue{}
+var close_new = make(map[string]*Iblock)
+var first = 1
+
+// 获取一个块
+func FindPathOneOpen_new(walls map[string]*Iblock) (bool, *Iblock) {
+
+	// 第一次时
+	if true {
+		fmt.Println(first)
+		heap.Init(open_new)
+		heap.Push(open_new, start)
+	}
+
+	if open_new.Len() == 0 {
+		// There's no path, return found false.
+		return false, nil
+	}
+
+	current := heap.Pop(open_new).(*Iblock)
+	current.Open = false
+	current.Closed = true
+
+	neighbors := pathNeighbors(walls, current)
+
+	for _, neighbor := range neighbors {
+		//cost := current.cost + current.pather.PathNeighborCost(neighbor)
+		// 默认所有 代价为1
+		cost := current.cost + 1
+		neighborNode := walls[GetKey(neighbor.X, neighbor.Y)]
+		if cost < neighborNode.cost {
+			if neighborNode.Open {
+				heap.Remove(open_new, neighborNode.index)
+			}
+			neighborNode.Open = false
+			neighborNode.Closed = false
+		}
+		if !neighborNode.Open && !neighborNode.Closed {
+			neighborNode.cost = cost
+			neighborNode.Open = true
+			neighborNode.rank = cost + neighbor.PathEstimatedCost(end)
+			neighborNode.parent = current
+			heap.Push(open_new, neighborNode)
+		}
+	}
+
+	//first++
+
+	return false, nil
+
+}
+
+// 获取邻居节点
+func pathNeighbors(walls map[string]*Iblock, current *Iblock) []*Iblock {
+	neighbors := []*Iblock{}
+	for _, offset := range [][]int{
+		{-1, 0},
+		{1, 0},
+		{0, -1},
+		{0, 1},
+	} {
+		if n := walls[GetKey(current.X+offset[0], current.Y+offset[1])]; n != nil &&
+			n.Btype != 1 {
+			neighbors = append(neighbors, n)
+		}
+	}
+	return neighbors
+}
+
+func (t *Iblock) PathEstimatedCost(to *Iblock) float64 {
+	absX := to.X - t.X
+	if absX < 0 {
+		absX = -absX
+	}
+	absY := to.Y - t.Y
+	if absY < 0 {
+		absY = -absY
+	}
+	return float64(absX + absY)
 }
