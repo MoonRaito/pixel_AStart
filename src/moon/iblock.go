@@ -10,10 +10,10 @@ import (
 )
 
 type Iblock struct {
-	X, Y             int
-	PX, PY           int
-	TxtF, TxtG, TxtH *text.Text
-	F, G, H          int
+	X, Y                   int
+	PX, PY                 int
+	TxtF, TxtG, TxtH, TxtC *text.Text
+	F, G, H                int
 
 	Rect  pixel.Rect
 	Vel   pixel.Vec
@@ -34,14 +34,15 @@ type Iblock struct {
 	index  int
 	Open   bool
 	Closed bool
-	cost   float64
-	parent *Iblock
+	Cost   float64
+	Parent *Iblock
 }
 
 func (ib *Iblock) UpdateIblock() {
 
 	ib.Block = NewRectangle(ib.Color, ib.Rect)
 
+	ib.TxtC = text.New(pixel.V(float64(ib.X)*100, float64(ib.Y)*100+80), text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	ib.TxtF = text.New(pixel.V(float64(ib.X)*100, float64(ib.Y)*100+50), text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	ib.TxtG = text.New(pixel.V(float64(ib.X)*100, float64(ib.Y)*100), text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	ib.TxtH = text.New(pixel.V(float64(ib.X)*100+50, float64(ib.Y)*100), text.NewAtlas(basicfont.Face7x13, text.ASCII))
