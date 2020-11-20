@@ -25,6 +25,9 @@ type Iblock struct {
 	level int
 
 	Block *imdraw.IMDraw
+
+	// 箭头 显示父节点xy坐标
+	TxtX, TxtY, PXY *text.Text
 }
 
 func (ib *Iblock) UpdateIblock() {
@@ -34,6 +37,11 @@ func (ib *Iblock) UpdateIblock() {
 	ib.TxtF = text.New(pixel.V(float64(ib.X)*100, float64(ib.Y)*100+50), text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	ib.TxtG = text.New(pixel.V(float64(ib.X)*100, float64(ib.Y)*100), text.NewAtlas(basicfont.Face7x13, text.ASCII))
 	ib.TxtH = text.New(pixel.V(float64(ib.X)*100+50, float64(ib.Y)*100), text.NewAtlas(basicfont.Face7x13, text.ASCII))
+
+	ib.PXY = text.New(pixel.V(float64(ib.X)*100+50, float64(ib.Y)*100+50), text.NewAtlas(basicfont.Face7x13, text.ASCII))
+
+	ib.TxtX = text.New(pixel.V(float64(ib.X)*100, float64(ib.Y)*100+80), text.NewAtlas(basicfont.Face7x13, text.ASCII))
+	ib.TxtY = text.New(pixel.V(float64(ib.X)*100+70, float64(ib.Y)*100+80), text.NewAtlas(basicfont.Face7x13, text.ASCII))
 
 }
 
