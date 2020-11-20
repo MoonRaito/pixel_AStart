@@ -253,6 +253,7 @@ func run() {
 		// 清空map
 		if win.JustPressed(pixelgl.KeyC) {
 			walls = make(map[string]*moon.Iblock)
+			iblock = &moon.Iblock{}
 			moon.InitOpenClose()
 		}
 
@@ -262,55 +263,88 @@ func run() {
 		// 获取寻路
 		if win.JustPressed(pixelgl.KeySpace) {
 			//moon.FindPath(walls,nil)
-			b, iblock = moon.FindPathOneOpen(walls, nil)
+
+			// 本来的版本
+			//b, iblock = moon.FindPathOneOpen(walls, nil)
 			//b, iblock = moon.FindPathAll(walls, nil)
+
+			b, iblock = moon.FindPathOneOpen_new(walls)
 		}
 
 		//imd3.Draw(win)
 
 		for _, wall := range walls {
-			wall.Block.Draw(win)
+			//wall.Block.Draw(win)
 
-			wall.TxtF.Clear()
-			fmt.Fprintln(wall.TxtF, wall.F)
-			wall.TxtF.Draw(win, pixel.IM)
-
-			wall.TxtG.Clear()
-			fmt.Fprintln(wall.TxtG, wall.G)
-			wall.TxtG.Draw(win, pixel.IM)
-
-			wall.TxtH.Clear()
-			fmt.Fprintln(wall.TxtH, wall.H)
-			wall.TxtH.Draw(win, pixel.IM)
-
-			// 父节点
-			wall.PXY.Clear()
-			if wall.PX > wall.X {
-				fmt.Fprintln(wall.PXY, ">")
-			}
-			if wall.PX < wall.X {
-				fmt.Fprintln(wall.PXY, "<")
+			if wall.Block != nil {
+				wall.Block.Draw(win)
 			}
 
-			if wall.PY > wall.Y {
-				fmt.Fprintln(wall.PXY, "^")
-			}
-			if wall.PY < wall.Y {
-				fmt.Fprintln(wall.PXY, "v")
-			}
+			//if moon.GetStart() != wall && moon.GetEnd() != wall && wall.Btype != 1 {
+			//
+			//	block := wall.Block
+			//
+			//	blockX := float64(wall.X) * 100
+			//	blockY := float64(wall.Y) * 100
+			//	r := pixel.R(blockX+1, blockY+1, blockX+100-1, blockY+100-1)
+			//	block.Push(r.Min, r.Max)
+			//	block.Rectangle(0)
+			//
+			//	block.Color = color.Black
+			//	if !wall.Open {
+			//		block.Color = color.White
+			//	}
+			//
+			//	block.Draw(win)
+			//
+			//}
 
-			//fmt.Fprintln(wall.PXY, strconv.Itoa(wall.PX)+"_"+strconv.Itoa(wall.PY))
-			wall.PXY.Draw(win, pixel.IM)
+			//wall.TxtF.Clear()
+			//fmt.Fprintln(wall.TxtF, wall.F)
+			//wall.TxtF.Draw(win, pixel.IM)
+
+			//wall.TxtG.Clear()
+			//fmt.Fprintln(wall.TxtG, wall.G)
+			//wall.TxtG.Draw(win, pixel.IM)
+			//
+			//wall.TxtH.Clear()
+			//fmt.Fprintln(wall.TxtH, wall.H)
+			//wall.TxtH.Draw(win, pixel.IM)
+
+			if wall.PXY != nil {
+				// 父节点
+				wall.PXY.Clear()
+				if wall.PX > wall.X {
+					fmt.Fprintln(wall.PXY, ">")
+				}
+				if wall.PX < wall.X {
+					fmt.Fprintln(wall.PXY, "<")
+				}
+
+				if wall.PY > wall.Y {
+					fmt.Fprintln(wall.PXY, "^")
+				}
+				if wall.PY < wall.Y {
+					fmt.Fprintln(wall.PXY, "v")
+				}
+
+				//fmt.Fprintln(wall.PXY, strconv.Itoa(wall.PX)+"_"+strconv.Itoa(wall.PY))
+				wall.PXY.Draw(win, pixel.IM)
+
+				wall.TxtC.Clear()
+				fmt.Fprintln(wall.TxtC, wall.Cost)
+				wall.TxtC.Draw(win, pixel.IM)
+			}
 
 			// 当前节点X
-			wall.TxtX.Clear()
-			fmt.Fprintln(wall.TxtX, "X:"+strconv.Itoa(wall.X))
-			wall.TxtX.Draw(win, pixel.IM)
-
-			// 当前节点Y
-			wall.TxtY.Clear()
-			fmt.Fprintln(wall.TxtY, "Y:"+strconv.Itoa(wall.Y))
-			wall.TxtY.Draw(win, pixel.IM)
+			//wall.TxtX.Clear()
+			//fmt.Fprintln(wall.TxtX, "X:"+strconv.Itoa(wall.X))
+			//wall.TxtX.Draw(win, pixel.IM)
+			//
+			//// 当前节点Y
+			//wall.TxtY.Clear()
+			//fmt.Fprintln(wall.TxtY, "Y:"+strconv.Itoa(wall.Y))
+			//wall.TxtY.Draw(win, pixel.IM)
 
 		}
 
@@ -318,15 +352,23 @@ func run() {
 		if b {
 			// 文字
 			msg.Clear()
-			fmt.Fprintln(msg, "寻路到达终点：x:"+strconv.Itoa(iblock.X)+"   y:"+strconv.Itoa(iblock.Y))
+			fmt.Fprintln(msg, "find end:    x:"+strconv.Itoa(iblock.X)+"   y:"+strconv.Itoa(iblock.Y))
 			msg.Draw(win, pixel.IM)
 
 			//road := walls[moon.GetKey(iblock.PX, iblock.PY)]
 			//road.Color = pixel.RGB(0.5, 0.2, 0.1)
 			//road.UpdateIblock()
 
-			path := walls
-			moon.DrawPath(path, iblock)
+			//path := walls
+			//moon.DrawPath(path, iblock)
+
+			curr := iblock
+			for curr != nil {
+				curr.Color = pixel.RGB(0.5, 0.2, 0.1)
+				curr.Block = moon.NewRectangle(curr.Color, curr.Rect)
+				walls[strconv.Itoa(curr.X)+"_"+strconv.Itoa(curr.Y)] = curr
+				curr = curr.Parent
+			}
 		}
 
 		win.Update()
