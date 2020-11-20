@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+//https://zh.camfinder.com/girls/asian?sound=off
 func addWall(walls map[string]*moon.Iblock, v pixel.Vec) {
 	addBlockMap(walls, v, pixel.RGB(0.4, 0.4, 0.4), 1)
 }
