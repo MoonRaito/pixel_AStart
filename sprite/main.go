@@ -123,7 +123,8 @@ func run() {
 	fmt.Println("当前路径：", dir)
 	fmt.Println("当前路径：", dir+"/sheet.png")
 
-	sheet, anims, err := loadAnimationSheet("sheet.png", "sheet.csv", 12)
+	dir += "/sprite/resources/"
+	sheet, anims, err := loadAnimationSheet(dir+"sheet.png", dir+"sheet.csv", 12)
 	if err != nil {
 		panic(err)
 	}
@@ -140,31 +141,78 @@ func run() {
 
 	win.Clear(colornames.Burlywood)
 
+	psoition := win.Bounds().Center()
+
+	fmt.Println("run len:" + strconv.Itoa(len(anims["Run"])))
 	last := time.Now()
 	for !win.Closed() {
 		dt := time.Since(last).Seconds()
 		last = time.Now()
 
+		win.Clear(colornames.Burlywood)
+
 		counter += dt
 
 		i := int(math.Floor(counter / rate))
-		fmt.Println("i:" + strconv.Itoa(i))
-		fmt.Println(counter)
+		//fmt.Println("i:" + strconv.Itoa(i))
+		//fmt.Println(counter)
 		frame := anims["Run"][i%len(anims["Run"])]
 
-		fmt.Println("i%len(anims[\"Run\"]:" + strconv.Itoa(len(anims["Run"])))
-		fmt.Println("i%len(anims[\"Run\"]:" + strconv.Itoa(i%len(anims["Run"])))
+		//fmt.Println("i%len(anims[\"Run\"]:" + strconv.Itoa(len(anims["Run"])))
+		//fmt.Println("i%len(anims[\"Run\"]:" + strconv.Itoa(i%len(anims["Run"])))
 		sprite.Set(sheet, frame)
 
 		mat := pixel.IM
 		mat = mat.ScaledXY(pixel.ZV, pixel.V(5, 5))
-		mat = mat.Moved(win.Bounds().Center())
+
+		//if win.Pressed(pixelgl.KeyLeft) {
+		//	//psoition = win.MousePosition()
+		//	psoition = pixel.V(5,5)
+		//	fmt.Println(psoition)
+		//	mat = mat.Moved(psoition)
+		//	mouse_c1 = 1
+		//}
+		//if win.JustReleased(pixelgl.KeyY) {
+		//	//psoition = win.MousePosition()
+		//	psoition = pixel.V(5,5).Add(psoition)
+		//	fmt.Println(psoition)
+		//	mat = mat.Moved(psoition)
+		//	mouse_c1 = 1
+		//}
+
+		ctrl := pixel.ZV
+		if win.Pressed(pixelgl.KeyLeft) {
+			ctrl.X--
+
+			//sprite.Frame().Frame
+			psoition = ctrl.Add(psoition)
+
+			//psoition.X = -64
+
+			//psoition = psoition.Scaled(dt)
+
+			//mat = mat.Moved(psoition)
+		}
+		if win.Pressed(pixelgl.KeyRight) {
+			ctrl.X++
+			psoition = ctrl.Add(psoition)
+		}
+		if win.Pressed(pixelgl.KeyUp) {
+			ctrl.Y++
+			psoition = ctrl.Add(psoition)
+		}
+		if win.Pressed(pixelgl.KeyDown) {
+			ctrl.Y--
+			psoition = ctrl.Add(psoition)
+		}
+
+		mat = mat.Moved(psoition)
 		sprite.Draw(win, mat)
 		//sprite.Draw(imd,)
 
 		//imd.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
 
-		if i == 26 {
+		if i == 19 {
 			sprite.Draw(win, pixel.IM.Moved(pixel.V(100, 100)))
 			counter = 0
 		}
