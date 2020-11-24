@@ -9,3 +9,4 @@ https://github.com/faiface/pixel
 go env
 
 
+/Volumes/data/work

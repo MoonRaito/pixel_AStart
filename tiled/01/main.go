@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"image/color"
+	"os"
 
 	// We must use blank imports for any image formats in the tileset image sources.
 	// You will get an error if a blank import is not made; TilePix does not import
@@ -26,8 +28,11 @@ func run() {
 		panic(err)
 	}
 
+	dir, _ := os.Getwd()
+	fmt.Println("当前路径：", dir)
+
 	// Load and initialise the map.
-	m, err := tilepix.ReadFile("/resource/01/base01.tmx")
+	m, err := tilepix.ReadFile(dir + "/resource/01/base01.tmx")
 	if err != nil {
 		panic(err)
 	}

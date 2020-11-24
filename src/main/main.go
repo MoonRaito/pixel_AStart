@@ -9,7 +9,7 @@ import (
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font/basicfont"
 	"image/color"
-	"moon"
+	"pixel_AStart/src/moon"
 	"strconv"
 	"time"
 )
