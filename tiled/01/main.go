@@ -19,7 +19,7 @@ import (
 func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:  "TilePix",
-		Bounds: pixel.R(0, 0, 640, 320),
+		Bounds: pixel.R(0, 0, 240*2, 336*2),
 		VSync:  true,
 	}
 
@@ -40,10 +40,23 @@ func run() {
 	for !win.Closed() {
 		win.Clear(color.White)
 
+		//mat := pixel.IM
+		//mat = mat.ScaledXY(pixel.ZV, pixel.V(2, 2))
+		//mat = mat.Moved(win.Bounds().Center().Add(pixel.V(-120,-168)))
+
+		//fmt.Println(m.Bounds())
+
 		// Draw all layers to the window.
-		if err := m.DrawAll(win, color.White, pixel.IM); err != nil {
+		if err := m.DrawAll(win, color.Black, pixel.IM); err != nil {
 			panic(err)
 		}
+
+		//canvas := pixelgl.NewCanvas(m.Bounds())
+		//canvas.Clear(color.Black)
+		//canvas.Draw(win,mat.Moved(win.Bounds().Center()))
+
+		cam := pixel.IM.Scaled(win.Bounds().Center(), 2.0).Moved(win.Bounds().Center())
+		win.SetMatrix(cam)
 
 		win.Update()
 	}
