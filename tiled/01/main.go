@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"strconv"
 	"time"
 
 	// We must use blank imports for any image formats in the tileset image sources.
@@ -52,6 +53,10 @@ func run() {
 	if err != nil {
 		panic(err)
 	}
+
+	// m 属性 研究
+	fmt.Println("m.Height:" + strconv.Itoa(m.Height))
+	fmt.Println(m.Height)
 
 	index := 1
 
