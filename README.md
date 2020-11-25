@@ -12,4 +12,11 @@ go env
 https://www.mapeditor.org/
 
 
+###
+文件结构说明
+> tiled 
+>>01 基础地图显示，添加移动 
+>
+>>02 添加精灵，点击事件
+
 /Volumes/data/work

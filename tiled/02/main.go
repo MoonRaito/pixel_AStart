@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"os"
 	"time"
 
@@ -15,6 +16,8 @@ import (
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
+
+	"pixel_AStart/utils"
 )
 
 var (
@@ -53,7 +56,56 @@ func run() {
 		panic(err)
 	}
 
-	index := 1
+	// 添加精灵
+	sheet, _, err := utils.LoadAnimationSheet(dir+"/resource/02/Map_Lord_Roy.png", dir+"/resource/02/sheet.csv", 16)
+	if err != nil {
+		panic(err)
+	}
+	//imd := imdraw.New(sheet)
+	//imd.Precision = 32
+
+	// 计数器
+	counter := 0.0
+	// 比率
+	rate := 0.5 / 10
+
+	// 精灵
+	sprite := pixel.NewSprite(nil, pixel.Rect{})
+
+	//Map_Roy,h,16,minx 695-13-16
+	// 精灵 帧
+	var s_frames []pixel.Rect
+	for i := 0; i < 12; i++ {
+		s_frames = append(s_frames, pixel.R(
+			115,
+			666,
+			131,
+			682,
+		))
+	}
+
+	s_frames = append(s_frames, pixel.R(
+		135,
+		666,
+		151,
+		682,
+	))
+
+	for i := 0; i < 12; i++ {
+		s_frames = append(s_frames, pixel.R(
+			156,
+			666,
+			172,
+			682,
+		))
+	}
+
+	s_frames = append(s_frames, pixel.R(
+		135,
+		666,
+		151,
+		682,
+	))
 
 	last := time.Now()
 	for !win.Closed() {
@@ -62,36 +114,10 @@ func run() {
 		dt := time.Since(last).Seconds()
 		last = time.Now()
 
-		//mat := pixel.IM
-		//mat = mat.ScaledXY(pixel.ZV, pixel.V(2, 2))
-		//mat = mat.Moved(win.Bounds().Center().Add(pixel.V(-120,-168)))
-
-		//fmt.Println(m.Bounds())
-
 		// Draw all layers to the window.
 		if err := m.DrawAll(win, color.Black, pixel.IM); err != nil {
 			panic(err)
 		}
-
-		//canvas := pixelgl.NewCanvas(m.Bounds())
-		//canvas.Clear(color.Black)
-		//canvas.Draw(win,mat.Moved(win.Bounds().Center()))
-
-		//cam := pixel.IM.Scaled(win.Bounds().Center(), scaled).Moved(win.Bounds().Center())
-
-		if index == 1 {
-
-			fmt.Println(win.Bounds())
-			fmt.Println(win.Bounds().Center())
-			fmt.Println(m.Bounds().Center())
-
-		}
-		//cam := pixel.IM.Scaled(win.Bounds().Center(), scaled).Moved(m.Bounds().Center().ScaledXY(pixel.V(scaled,scaled)))
-		//cam := pixel.IM.Moved(m.Bounds().Center().ScaledXY(pixel.V(scaled,scaled)))
-		//cam := pixel.IM.Moved(pixel.ZV)
-
-		// 标准大小
-		//cam := pixel.IM.Scaled(pixel.ZV, scaled).Moved(pixel.ZV)
 
 		// 添加移动
 		cam := pixel.IM.Scaled(pixel.ZV, camZoom).Moved(pixel.ZV.Sub(camPos))
@@ -122,9 +148,28 @@ func run() {
 			}
 		}
 
-		if index == 1 {
+		// region 添加精灵 start
+		counter += dt
 
-			index++
+		i := int(math.Floor(counter / rate))
+		frame := s_frames[i%len(s_frames)]
+		sprite.Set(sheet, frame)
+
+		mat := pixel.IM
+		//mat = mat.ScaledXY(pixel.ZV, pixel.V(2, 2))
+
+		//mat = mat.Moved(pixel.V(8,8))
+		mat = mat.Moved(pixel.V(30, 30))
+		sprite.Draw(win, mat)
+
+		// endregion 添加精灵end
+
+		// 点击事件 选中精灵
+		if win.JustPressed(pixelgl.MouseButtonLeft) {
+			fmt.Println(win.MousePosition())
+
+			// sprite frame 在图片的截取的图片大小
+			fmt.Println(sprite.Frame())
 		}
 
 		win.Update()
