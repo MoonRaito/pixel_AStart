@@ -20,3 +20,8 @@ https://www.mapeditor.org/
 >>02 添加精灵，点击事件
 
 /Volumes/data/work
+
+
+
+### ebiten
+https://ebiten.org/documents/cheatsheet.html
