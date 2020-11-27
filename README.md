@@ -21,7 +21,7 @@ https://www.mapeditor.org/
 
 /Volumes/data/work
 
-
+fmt.Println(unsafe.Sizeof(One{})
 
 ### ebiten
 https://ebiten.org/documents/cheatsheet.html
