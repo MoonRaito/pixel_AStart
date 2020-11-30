@@ -7,5 +7,5 @@ gitclone.com
 合并为
 https://gitclone.com/github.com/hajimehoshi/ebiten.git
 
-
+https://ebiten.org/blog/
 animation 精灵动画
