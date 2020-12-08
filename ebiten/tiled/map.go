@@ -15,14 +15,14 @@ type Map struct {
 	// Width is the number of tiles
 	Width int `xml:"width,attr"`
 	// Height is the number of tiles
-	Height     int `xml:"height,attr"`
-	TileWidth  int `xml:"tilewidth,attr"`
-	TileHeight int `xml:"tileheight,attr"`
-	//Properties   []*Property    `xml:"properties>property"`
+	Height     int         `xml:"height,attr"`
+	TileWidth  int         `xml:"tilewidth,attr"`
+	TileHeight int         `xml:"tileheight,attr"`
+	Properties []*Property `xml:"properties>property"`
 	//Tilesets     []*Tileset     `xml:"tileset"`
 	//TileLayers   []*TileLayer   `xml:"layer"`
 	ObjectGroups []*ObjectGroup `xml:"objectgroup"`
-	//Infinite     bool           `xml:"infinite,attr"`
+	Infinite     bool           `xml:"infinite,attr"`
 	//ImageLayers  []*ImageLayer  `xml:"imagelayer"`
 	//
 	//canvas *pixelgl.Canvas
