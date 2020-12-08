@@ -11,6 +11,7 @@ import (
 	"os"
 	"pixel_AStart/ebiten/tiled"
 	"strconv"
+	"time"
 )
 
 var img *ebiten.Image
@@ -19,6 +20,11 @@ var tiles map[string]*tiled.Tile
 
 func getKey(x int, y int) string {
 	return strconv.Itoa(x) + "_" + strconv.Itoa(y)
+}
+
+// 光标
+var cursor = &tiled.Cursor{
+	Count: 0,
 }
 
 func init() {
@@ -71,26 +77,32 @@ func init() {
 		log.Fatal(err_)
 	}
 
-	cursor := &tiled.Cursor{
-		Count: 0,
-	}
 	cursor.Init(dir + "/resource/02/Map_Lord_Roy.png")
 
 }
 
 // Game implements ebiten.Game interface.
-type Game struct{}
+type Game struct {
+	last time.Time
+	dt   float64
+}
 
 // Update proceeds the game state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
+	g.dt = time.Since(g.last).Seconds()
+	g.last = time.Now()
 
+	fmt.Println(g.dt)
+
+	// 鼠标选中
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
 		tile := tiles[getKey(x/16, y/16)]
 		fmt.Println(tile.Name + "**" + tile.Type)
 	}
 
+	cursor.Update(g.dt)
 	// Write your game's logical update.
 	return nil
 }
@@ -111,6 +123,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		op.GeoM.Scale(2, 2)
 		screen.DrawImage(tile.Eimage, op)
 	}
+
+	// 光标
+	cursor.Draw(screen)
 
 }
 
