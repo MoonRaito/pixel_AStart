@@ -41,7 +41,7 @@ func (c *Cursor) Update(dt float64) {
 
 	// 1秒 60帧
 	c.dt += dt
-	if c.dt > 1.5 {
+	if c.dt > 1.0 {
 		c.dt = 0
 	}
 }
@@ -49,19 +49,19 @@ func (c *Cursor) Update(dt float64) {
 func (c *Cursor) Draw(screen *ebiten.Image) {
 
 	i := 0
-	if c.dt < 0.70 {
+	if c.dt < 0.45 {
 		i = 0
 	}
 
-	if 0.70 <= c.dt && c.dt <= 0.75 {
+	if 0.45 <= c.dt && c.dt <= 0.50 {
 		i = 1
 	}
 
-	if 0.75 < c.dt && c.dt < 1.45 {
+	if 0.50 < c.dt && c.dt < 0.95 {
 		i = 2
 	}
 
-	if 1.50 <= c.dt {
+	if 0.95 <= c.dt {
 		i = 3
 	}
 
