@@ -93,13 +93,16 @@ func (g *Game) Update() error {
 	g.dt = time.Since(g.last).Seconds()
 	g.last = time.Now()
 
-	fmt.Println(g.dt)
+	//fmt.Println(g.dt)
 
 	// 鼠标选中
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
+		fmt.Println(getKey(x/16, y/16))
 		tile := tiles[getKey(x/16, y/16)]
-		fmt.Println(tile.Name + "**" + tile.Type)
+		if tile != nil {
+			fmt.Println(tile.Name + "**" + tile.Type)
+		}
 	}
 
 	cursor.Update(g.dt)
