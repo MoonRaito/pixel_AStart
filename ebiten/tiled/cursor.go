@@ -7,6 +7,7 @@ import (
 	"image"
 	_ "image/png"
 	"log"
+	"pixel_AStart/ebiten/common"
 )
 
 type Cursor struct {
@@ -53,16 +54,44 @@ func (c *Cursor) Update(dt float64) {
 
 	// 按键移动光标
 	if inpututil.IsKeyJustPressed(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
-		c.X -= 16
+		if c.X-16 >= 0 {
+			c.X -= 16
+			// 设置偏移量
+			//if c.X - 16 < 32 {
+			//	common.OffsetX += 16
+			//}
+
+		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyD) || inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		c.X += 16
+		newX := c.X + 16
+		if newX <= 240 {
+			c.X += 16
+
+			// 设置偏移量
+			//if c.X + 16 > 320-(16*2) {
+			//	common.OffsetX -= 16
+			//}
+		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) || inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		c.Y -= 16
+		if c.Y-16 >= 0 {
+			c.Y -= 16
+
+			//if c.Y - 16 < 32 {
+			//	common.OffsetY += 16
+			//}
+		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyS) || inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		c.Y += 16
+		if c.Y+16 <= 336 {
+			c.Y += 16
+
+			// 设置偏移量
+			//if c.X + 16 > 240-(16*2) {
+			//	common.OffsetY -= 16
+			//}
+		}
 	}
 }
 
@@ -84,7 +113,7 @@ func (c *Cursor) Draw(screen *ebiten.Image) {
 
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(c.X), float64(c.Y))
+	op.GeoM.Translate(float64(c.X)+float64(common.OffsetX), float64(c.Y)+float64(common.OffsetY))
 	op.GeoM.Scale(c.Scale, c.Scale)
 	//screen.DrawImage(c.images[(c.Count/5)%4], op)
 	screen.DrawImage(c.images[i], op)

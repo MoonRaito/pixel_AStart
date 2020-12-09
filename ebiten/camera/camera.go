@@ -12,6 +12,9 @@ type Camera struct {
 	Position   f64.Vec2
 	ZoomFactor int
 	Rotation   int
+
+	OffsetX int
+	OffsetY int
 }
 
 func (c *Camera) String() string {

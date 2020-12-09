@@ -17,6 +17,8 @@ import (
 )
 
 const (
+	ScreenWidth  = 320
+	ScreenHeight = 240
 	// 缩放倍数
 	scale = 2
 )
@@ -142,7 +144,7 @@ func (g *Game) Update() error {
 	// 罗伊
 	sroy.Update(g.dt)
 
-	// 光标 是否选中 精灵
+	// 光标 是否选中 精灵  后期可改为 循环多个角色
 	if cursor.X == sroy.X && cursor.Y == sroy.Y {
 		cursor.IsSelected = true
 		sroy.IsSelected = true
@@ -194,10 +196,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// 罗伊
 	sroy.Draw(screen)
 
+	// tps: 每秒调用多少次 更新update
+	ebitenutil.DebugPrint(
+		screen,
+		fmt.Sprintf("TPS: %0.2f\n", ebiten.CurrentTPS()),
+	)
 }
 
 // Layout takes the outside size (e.g., the window size) and returns the (logical) screen size.
 // If you don't have to adjust the screen size with the outside size, just return a fixed size.
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 640, 480
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return ScreenWidth, ScreenHeight
 }
