@@ -14,9 +14,13 @@ type Cursor struct {
 	images      []*ebiten.Image
 	Count, X, Y int
 	dt          float64
+	// 缩放倍数
+	Scale float64
 
 	// 是否按下
 	isPressed bool
+	// 是否选中精灵
+	IsSelected bool
 }
 
 func (c *Cursor) Init(url string) {
@@ -62,7 +66,7 @@ func (c *Cursor) Update(dt float64) {
 	}
 }
 
-func (c *Cursor) Draw(scale float64, screen *ebiten.Image) {
+func (c *Cursor) Draw(screen *ebiten.Image) {
 
 	i := 0
 	if c.dt <= 0.50 {
@@ -73,10 +77,15 @@ func (c *Cursor) Draw(scale float64, screen *ebiten.Image) {
 		i = 1
 	}
 
+	// 选中时 只使用最大图片
+	if c.IsSelected {
+		i = 0
+	}
+
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(c.X), float64(c.Y))
-	op.GeoM.Scale(scale, scale)
+	op.GeoM.Scale(c.Scale, c.Scale)
 	//screen.DrawImage(c.images[(c.Count/5)%4], op)
 	screen.DrawImage(c.images[i], op)
 }

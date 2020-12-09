@@ -11,10 +11,14 @@ import (
 	"pixel_AStart/ebiten/camera"
 	"pixel_AStart/ebiten/role/roy"
 
-	//"pixel_AStart/ebiten/camera"
 	"pixel_AStart/ebiten/tiled"
 	"strconv"
 	"time"
+)
+
+const (
+	// 缩放倍数
+	scale = 2
 )
 
 var img *ebiten.Image
@@ -28,11 +32,14 @@ func getKey(x int, y int) string {
 // 光标
 var cursor = &tiled.Cursor{
 	Count: 0,
+	Scale: scale,
 }
 
 // 主角 罗伊
 var sroy = &roy.Roy{
-	Count: 0,
+	Count:  0,
+	Scale:  scale,
+	Status: 1,
 }
 
 func init() {
@@ -135,6 +142,15 @@ func (g *Game) Update() error {
 	// 罗伊
 	sroy.Update(g.dt)
 
+	// 光标 是否选中 精灵
+	if cursor.X == sroy.X && cursor.Y == sroy.Y {
+		cursor.IsSelected = true
+		sroy.IsSelected = true
+	} else {
+		cursor.IsSelected = false
+		sroy.IsSelected = false
+	}
+
 	//if ebiten.IsKeyPressed(ebiten.KeyQ) {
 	//	if g.camera.ZoomFactor > -2400 {
 	//		g.camera.ZoomFactor -= 1
@@ -174,9 +190,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// 光标
-	cursor.Draw(g.Scale, screen)
+	cursor.Draw(screen)
 	// 罗伊
-	sroy.Draw(g.Scale, screen)
+	sroy.Draw(screen)
 
 }
 
