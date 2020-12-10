@@ -8,6 +8,7 @@ import (
 	"pixel_AStart/ebiten/camera"
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/role/roy"
+	"strconv"
 
 	"pixel_AStart/ebiten/tiled"
 	"time"
@@ -65,6 +66,7 @@ func (g *Game) Update() error {
 	// 鼠标选中
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
+		fmt.Println("x:" + strconv.Itoa(x) + "    y:" + strconv.Itoa(y))
 		fmt.Println(tiled.GetKey(int(float64(x)/(16*common.Scale)), int(float64(y)/(16*common.Scale))))
 		tile := tiled.Tiles[tiled.GetKey(int(float64(x)/(16*common.Scale)), int(float64(y)/(16*common.Scale)))]
 		if tile != nil {
@@ -72,6 +74,9 @@ func (g *Game) Update() error {
 		} else {
 			fmt.Println("tile is nil")
 		}
+
+		sroy.X = x/common.Scale - ((x / common.Scale) % 16)
+		sroy.Y = y/common.Scale - ((y / common.Scale) % 16) + common.OffsetY
 	}
 
 	// 光标

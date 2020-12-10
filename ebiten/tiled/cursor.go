@@ -63,55 +63,75 @@ func (c *Cursor) Update(dt float64) {
 
 	// 按键移动光标
 	if inpututil.IsKeyJustPressed(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
-		if c.X-16 >= 0 {
+		if c.screenX-16 >= 0 {
 			c.X -= 16
 			c.screenX -= 16
-			// 设置偏移量
-			//if c.X - 16 < 32 {
-			//	common.OffsetX += 16
-			//}
-
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyD) || inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		newX := c.X + 16
-		if newX <= 240 {
+		if c.screenX+16 < common.ScreenWidth/common.Scale {
 			c.X += 16
-
-			// 设置偏移量
-			//if c.X + 16 > 320-(16*2) {
-			//	common.OffsetX -= 16
-			//}
+			c.screenX += 16
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) || inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		if c.Y-16 >= 0 {
-			c.Y -= 16
+		// 下一个坐标点 屏幕位置
+		next := c.screenY - 16
 
-			//if c.Y - 16 < 32 {
-			//	common.OffsetY += 16
-			//}
-		}
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyS) || inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		// 下一个坐标点
-		next := c.screenY + 16
+		// 下一个坐标点 地图配置
+		nextMap := c.Y - 16
 
-		// 光标高度必须小于 场景的高度
-		if c.screenY <= common.ScreenHeight/common.Scale {
-			// 是否是在屏幕的下两格的位置
-			if next >= common.ScreenHeight/common.Scale-(16*2) {
-				// 是否是整个地图的下两格
-				if next >= MapHeight-(16*2) {
+		// 光标高度必须大于 场景的高度
+		if next >= 0 {
+			// 是否是在屏幕的上两格的位置
+			if next < 16*2 {
+				// 是否是整个地图的上两格
+				if nextMap < 16*2 {
 					// 移动光标
 					c.screenY = next
+				} else {
+					// 地图的下两格 记录偏移量
+					common.OffsetY += 16
 				}
-				// 地图的下两格 记录偏移量
-				common.OffsetY -= 16
+			} else {
+				// 非 屏幕上两格 移动光标
+				c.screenY = next
+			}
+
+			// 记录地图位置
+			c.Y = nextMap
+		}
+
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyS) || inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+		// 下一个坐标点 屏幕位置
+		next := c.screenY + 16
+
+		// 下一个坐标点 地图配置
+		nextMap := c.Y + 16
+
+		// 光标高度必须小于 场景的高度
+		if next < common.ScreenHeight/common.Scale {
+			// 是否是在屏幕的下两格的位置
+			if next >= common.ScreenHeight/common.Scale-(16*2) {
+
+				// 整个地图的下两格 不再偏移 只移动光标
+
+				// 是否是整个地图的下两格
+				if nextMap >= MapHeight-(16*2) {
+					// 移动光标
+					c.screenY = next
+				} else {
+					// 地图的下两格 记录偏移量
+					common.OffsetY -= 16
+				}
 			} else {
 				// 非 屏幕下两格 移动光标
 				c.screenY = next
 			}
+
+			// 记录地图位置
+			c.Y = nextMap
 		}
 	}
 }

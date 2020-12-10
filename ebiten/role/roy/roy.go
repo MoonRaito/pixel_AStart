@@ -34,7 +34,7 @@ func (c *Roy) Init(url string) {
 
 	c.image = img
 	c.X = 2 * 16
-	c.Y = 3 * 16
+	c.Y = 10 * 16
 	c.Count = 0
 
 	c.imgStatus1 = make([]*ebiten.Image, 3)
