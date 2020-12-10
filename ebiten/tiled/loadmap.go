@@ -93,3 +93,9 @@ func ReadFile(filePath string) (*Map, error) {
 
 	return Read(f, dir)
 }
+
+// ReadFile will read, decode and initialise a Tiled Map from a file path.
+func ReadFileRealPath(fileRealPath string) (*Map, error) {
+	dir, _ := os.Getwd()
+	return ReadFile(dir + fileRealPath)
+}

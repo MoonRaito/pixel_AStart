@@ -11,8 +11,9 @@ import (
 )
 
 type Cursor struct {
-	image       *ebiten.Image
-	images      []*ebiten.Image
+	image  *ebiten.Image
+	images []*ebiten.Image
+	// X,Y 游戏世界地图位置
 	Count, X, Y int
 	dt          float64
 	// 缩放倍数
@@ -22,6 +23,11 @@ type Cursor struct {
 	isPressed bool
 	// 是否选中精灵
 	IsSelected bool
+
+	// 场景 x 也就是 屏幕的 x
+	screenX int
+	// 场景 y 也就是 屏幕的 y
+	screenY int
 }
 
 func (c *Cursor) Init(url string) {
@@ -34,7 +40,10 @@ func (c *Cursor) Init(url string) {
 	c.X = 16 * 5
 	c.Y = 16 * 5
 	c.Count = 0
+	c.screenX = 16 * 5
+	c.screenY = 16 * 5
 
+	// 精灵动画
 	c.images = make([]*ebiten.Image, 2)
 	c.images[0] = img.SubImage(image.Rect(19, 10, 35, 26)).(*ebiten.Image)
 	c.images[1] = img.SubImage(image.Rect(43, 12, 59, 28)).(*ebiten.Image)
@@ -56,6 +65,7 @@ func (c *Cursor) Update(dt float64) {
 	if inpututil.IsKeyJustPressed(ebiten.KeyA) || inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
 		if c.X-16 >= 0 {
 			c.X -= 16
+			c.screenX -= 16
 			// 设置偏移量
 			//if c.X - 16 < 32 {
 			//	common.OffsetX += 16
@@ -84,13 +94,24 @@ func (c *Cursor) Update(dt float64) {
 		}
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyS) || inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		if c.Y+16 <= 336 {
-			c.Y += 16
+		// 下一个坐标点
+		next := c.screenY + 16
 
-			// 设置偏移量
-			//if c.X + 16 > 240-(16*2) {
-			//	common.OffsetY -= 16
-			//}
+		// 光标高度必须小于 场景的高度
+		if c.screenY <= common.ScreenHeight/common.Scale {
+			// 是否是在屏幕的下两格的位置
+			if next >= common.ScreenHeight/common.Scale-(16*2) {
+				// 是否是整个地图的下两格
+				if next >= MapHeight-(16*2) {
+					// 移动光标
+					c.screenY = next
+				}
+				// 地图的下两格 记录偏移量
+				common.OffsetY -= 16
+			} else {
+				// 非 屏幕下两格 移动光标
+				c.screenY = next
+			}
 		}
 	}
 }
@@ -113,7 +134,7 @@ func (c *Cursor) Draw(screen *ebiten.Image) {
 
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(c.X)+float64(common.OffsetX), float64(c.Y)+float64(common.OffsetY))
+	op.GeoM.Translate(float64(c.screenX), float64(c.screenY))
 	op.GeoM.Scale(c.Scale, c.Scale)
 	//screen.DrawImage(c.images[(c.Count/5)%4], op)
 	screen.DrawImage(c.images[i], op)

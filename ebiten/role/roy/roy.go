@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image"
 	"log"
+	"pixel_AStart/ebiten/common"
 )
 
 type Roy struct {
@@ -97,7 +98,7 @@ func (c *Roy) status1(screen *ebiten.Image) {
 
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(c.X), float64(c.Y))
+	op.GeoM.Translate(float64(c.X), float64(c.Y)+float64(common.OffsetY))
 	op.GeoM.Scale(c.Scale, c.Scale)
 	//screen.DrawImage(c.img_status1[(c.Count/5)%4], op)
 	screen.DrawImage(c.imgStatus1[i], op)
@@ -123,7 +124,7 @@ func (c *Roy) status2(screen *ebiten.Image) {
 
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(c.X)-3, float64(c.Y)-5)
+	op.GeoM.Translate(float64(c.X)-3, float64(c.Y)-5+float64(common.OffsetY))
 	op.GeoM.Scale(c.Scale, c.Scale)
 	//screen.DrawImage(c.imgStatus2[(c.Count/5)%3], op)
 	screen.DrawImage(c.imgStatus2[i], op)
