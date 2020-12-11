@@ -33,8 +33,8 @@ func (c *Roy) Init(url string) {
 	}
 
 	c.image = img
-	c.X = 2 * 16
-	c.Y = 10 * 16
+	c.X = 5 * 16
+	c.Y = 5 * 16
 	c.Count = 0
 
 	c.imgStatus1 = make([]*ebiten.Image, 3)
@@ -99,7 +99,7 @@ func (c *Roy) status1(screen *ebiten.Image) {
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(c.X), float64(c.Y)+float64(common.OffsetY))
-	op.GeoM.Scale(c.Scale, c.Scale)
+	op.GeoM.Scale(common.Scale, common.Scale)
 	//screen.DrawImage(c.img_status1[(c.Count/5)%4], op)
 	screen.DrawImage(c.imgStatus1[i], op)
 }

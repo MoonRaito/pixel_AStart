@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"pixel_AStart/ebiten/camera"
 	"pixel_AStart/ebiten/common"
+	"pixel_AStart/ebiten/path"
 	"pixel_AStart/ebiten/role/roy"
 	"strconv"
 
@@ -27,6 +28,9 @@ var sroy = &roy.Roy{
 	Status: 1,
 }
 
+// path 可行进 路径
+var paths = &path.Path{}
+
 func init() {
 
 	common.Init()
@@ -37,6 +41,8 @@ func init() {
 	cursor.Init(common.RealPath + "/resource/images/cursor.png")
 	// 罗伊
 	sroy.Init(common.RealPath + "/resource/02/Map_Lord_Roy.png")
+
+	paths, _ = path.NewPath()
 
 }
 
@@ -93,6 +99,11 @@ func (g *Game) Update() error {
 		sroy.IsSelected = false
 	}
 
+	// 选中并按下空格
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) && sroy.IsSelected {
+		paths.Find(sroy.X/16, sroy.Y/16)
+	}
+
 	//if ebiten.IsKeyPressed(ebiten.KeyQ) {
 	//	if g.camera.ZoomFactor > -2400 {
 	//		g.camera.ZoomFactor -= 1
@@ -120,6 +131,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	cursor.Draw(screen)
 	// 罗伊
 	sroy.Draw(screen)
+
+	// 路径
+	paths.Draw(screen)
 
 	// tps: 每秒调用多少次 更新update
 	ebitenutil.DebugPrint(
