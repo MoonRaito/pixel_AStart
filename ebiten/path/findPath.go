@@ -55,13 +55,14 @@ func (p *Path) Find(x, y int) {
 	// 查询路径  直到  open 列表为 空
 	go func() {
 		for {
-			//if !findPath() {
-			//	break
-			//}
+			if !findPath() {
+				break
+			}
 
 			fmt.Println(time.Now())
 			fmt.Println(len(paths))
-			time.Sleep(10000)
+			//time.Sleep(10000)
+			time.Sleep(2e9)
 			fmt.Println(time.Now())
 		}
 	}()
