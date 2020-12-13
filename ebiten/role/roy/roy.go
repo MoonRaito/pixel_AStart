@@ -71,8 +71,16 @@ func (c *Roy) Update(dt float64) {
 
 	// 1秒 60帧
 	c.dt += dt
-	if c.dt > 1.0 {
-		c.dt = 0
+	// 每个状态的帧数不一致
+	if c.Status == 1 {
+		if c.dt > 1.0 {
+			c.dt = 0
+		}
+	}
+	if c.Status == 2 {
+		if c.dt > 0.48 {
+			c.dt = 0
+		}
 	}
 
 }
@@ -98,17 +106,11 @@ func (c *Roy) status1(screen *ebiten.Image) {
 	i := 0
 	if c.dt < 0.45 {
 		i = 0
-	}
-
-	if 0.45 <= c.dt && c.dt <= 0.50 {
+	} else if 0.45 <= c.dt && c.dt <= 0.50 {
 		i = 1
-	}
-
-	if 0.50 < c.dt && c.dt < 0.95 {
+	} else if 0.50 < c.dt && c.dt < 0.95 {
 		i = 2
-	}
-
-	if 0.95 <= c.dt {
+	} else if 0.95 <= c.dt {
 		i = 1
 	}
 
@@ -124,17 +126,11 @@ func (c *Roy) status2(screen *ebiten.Image) {
 	i := 0
 	if c.dt < 0.45 {
 		i = 0
-	}
-
-	if 0.45 <= c.dt && c.dt <= 0.50 {
+	} else if 0.45 <= c.dt && c.dt <= 0.50 {
 		i = 1
-	}
-
-	if 0.50 < c.dt && c.dt < 0.95 {
+	} else if 0.50 < c.dt && c.dt < 0.95 {
 		i = 2
-	}
-
-	if 0.95 <= c.dt {
+	} else if 0.95 <= c.dt {
 		i = 1
 	}
 
@@ -148,19 +144,15 @@ func (c *Roy) status2(screen *ebiten.Image) {
 
 func (c *Roy) status3(screen *ebiten.Image) {
 	i := 0
-	if c.dt < 0.25 {
+	s := 0.12
+	sp := 0.12
+	if c.dt < s {
 		i = 0
-	}
-
-	if 0.25 <= c.dt && c.dt <= 0.50 {
+	} else if s <= c.dt && c.dt <= s+sp {
 		i = 1
-	}
-
-	if 0.50 < c.dt && c.dt < 0.75 {
+	} else if s+sp < c.dt && c.dt < s+(sp*2) {
 		i = 2
-	}
-
-	if 0.75 <= c.dt {
+	} else if s+(sp*3) <= c.dt {
 		i = 3
 	}
 
