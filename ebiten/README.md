@@ -22,6 +22,6 @@ type11:平地    def:0   avo:0
 type12:山     def:1  avo:30     
 type13:高山    def:2   avo:40      
 type14:森    def:1   avo:20      
-type15:沟壑    def:0   avo:40   
+type15:沟壑    def:0   avo:0   
 type16:海    def:0   avo:10    
    

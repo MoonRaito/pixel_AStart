@@ -102,6 +102,14 @@ func (g *Game) Update() error {
 	// 选中并按下空格
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) && sroy.IsSelected {
 		paths.Find(sroy.X/16, sroy.Y/16)
+
+		sroy.Status = 2
+	}
+	// 临时 用c 清图
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) && sroy.IsSelected {
+		paths.Clear()
+
+		sroy.Status = 1
 	}
 
 	//if ebiten.IsKeyPressed(ebiten.KeyQ) {
@@ -127,13 +135,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// 加载地图
 	tiled.Draw(screen)
 
+	// 路径
+	paths.Draw(screen)
+
 	// 光标
 	cursor.Draw(screen)
 	// 罗伊
 	sroy.Draw(screen)
-
-	// 路径
-	paths.Draw(screen)
 
 	// tps: 每秒调用多少次 更新update
 	ebitenutil.DebugPrint(

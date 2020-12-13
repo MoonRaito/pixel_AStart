@@ -25,6 +25,18 @@ type Tile struct {
 	Type string `xml:"type,attr"`
 	X    int    `xml:"x,attr"`
 	Y    int    `xml:"y,attr"`
+
+	Property *property
+}
+
+type property struct {
+	Name string
+	// 防御
+	Def int
+	// 闪避
+	Avo int
+	// 移动力 move power  到达此处的移动力
+	Mp int
 }
 
 // In returns true if (x, y) is in the sprite, and false otherwise.
@@ -65,11 +77,12 @@ func Init() {
 			y := int(o.Y) - 16
 			eimage := img.SubImage(image.Rect(x, y, int(o.X)+16, int(o.Y))).(*ebiten.Image)
 			tile := Tile{
-				Eimage: eimage,
-				Name:   o.Name,
-				Type:   o.Type,
-				X:      x,
-				Y:      y,
+				Eimage:   eimage,
+				Name:     o.Name,
+				Type:     o.Type,
+				X:        x,
+				Y:        y,
+				Property: initProperty(o.Type),
 			}
 			Tiles[GetKey(x/16, y/16)] = &tile
 		}
@@ -92,5 +105,111 @@ func Draw(screen *ebiten.Image) {
 		screen.DrawImage(tile.Eimage, op)
 
 		//g.camera.Render(tile.Eimage, screen)
+	}
+}
+
+func check() {
+
+}
+
+// 砖块属性
+/*
+type0:不可抵达    Def:0   Avo:0
+type1:城门    Def:3   Avo:20
+type2:废墟    Def:0   Avo:0
+type3:民家    Def:0   Avo:10
+type4:村    Def:0   Avo:10
+
+
+type11:平地    Def:0   Avo:0
+type12:山     Def:1  Avo:30
+type13:高山    Def:2   Avo:40
+type14:森    Def:1   Avo:20
+type15:沟壑    Def:0   Avo:40
+type16:海    Def:0   Avo:10
+*/
+func initProperty(t string) *property {
+	switch t {
+	case "0":
+		return &property{
+			Name: "不可抵达",
+			Def:  0,
+			Avo:  0,
+			Mp:   0,
+		}
+	case "1":
+		return &property{
+			Name: "城门",
+			Def:  3,
+			Avo:  20,
+			Mp:   1,
+		}
+	case "2":
+		return &property{
+			Name: "废墟",
+			Def:  0,
+			Avo:  0,
+			Mp:   1,
+		}
+	case "3":
+		return &property{
+			Name: "民家",
+			Def:  0,
+			Avo:  10,
+			Mp:   1,
+		}
+	case "4":
+		return &property{
+			Name: "村",
+			Def:  0,
+			Avo:  10,
+			Mp:   1,
+		}
+
+	case "11":
+		return &property{
+			Name: "平地",
+			Def:  0,
+			Avo:  0,
+			Mp:   1,
+		}
+	case "12":
+		return &property{
+			Name: "山",
+			Def:  1,
+			Avo:  30,
+			Mp:   2,
+		}
+	case "13":
+		return &property{
+			Name: "高山",
+			Def:  2,
+			Avo:  40,
+			Mp:   3,
+		}
+	case "14":
+		return &property{
+			Name: "森",
+			Def:  1,
+			Avo:  20,
+			Mp:   2,
+		}
+	case "15":
+		return &property{
+			Name: "沟壑",
+			Def:  0,
+			Avo:  0,
+			Mp:   0,
+		}
+	case "16":
+		return &property{
+			Name: "海",
+			Def:  0,
+			Avo:  10,
+			Mp:   0,
+		}
+
+	default:
+		return nil
 	}
 }

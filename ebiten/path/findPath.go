@@ -3,9 +3,7 @@ package path
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"image"
-	"log"
+	"image/color"
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/queue"
 	"pixel_AStart/ebiten/tiled"
@@ -19,6 +17,9 @@ type Path struct {
 
 	// 父节点
 	PX, PY int
+
+	// 移动力
+	movePower int
 }
 
 // close
@@ -28,13 +29,27 @@ var paths map[string]*Path
 var patch = queue.NewQueue()
 
 func NewPath() (*Path, error) {
-	img, _, err := ebitenutil.NewImageFromFile(common.RealPath + "/resource/02/Restore.png")
-	if err != nil {
-		log.Fatal(err)
-	}
+	//img, _, err := ebitenutil.NewImageFromFile(common.RealPath + "/resource/02/Restore.png")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+
+	imgPath := ebiten.NewImage(15, 15)
+	//imgPath.Fill(color.White)
+
+	//color.RGBA{R, G, B , A}
+	//R、G、B三个参数，正整数值的取值范围为：0 - 255。百分数值的取值范围为：0.0% - 100.0%。
+	//超出范围的数值将被截至其最接近的取值极限。这里是16进制
+	//A为透明度参数，取值在0~1之间，不可为负值
+	//imgPath.Fill(color.RGBA{0x00, 0x80, 0x00, 0x80})
+
+	// 7AC5CD -> 122,197,205    	#4682B4
+	imgPath.Fill(color.RGBA{0x46, 0x82, 0xB4, 0xC8})
+	//imgPath.Fill(color.RGBA{0x66, 0xcc, 0xff, 0xff})
+	//imgPath.Fill(color.RGBA{0x66, 0xcc, 0xff, 0xff})
 
 	pa := &Path{
-		image: img,
+		image: imgPath,
 	}
 
 	return pa, nil
@@ -43,6 +58,7 @@ func NewPath() (*Path, error) {
 // 所有路径
 func (p *Path) Find(x, y int) {
 
+	// close
 	paths = make(map[string]*Path)
 
 	// 记录已查找过的
@@ -54,8 +70,11 @@ func (p *Path) Find(x, y int) {
 
 		PX: 0,
 		PY: 0,
+
+		movePower: 6,
 	}
 
+	// 加入队列
 	push(pa)
 
 	// 查询路径  直到  open 列表为 空
@@ -109,25 +128,51 @@ func findPath() bool {
 	l := NewPathByPare(p, 3)
 	r := NewPathByPare(p, 4)
 
+	// 不在close
 	if _, ok := paths[tiled.GetKey(u.X, u.Y)]; !ok {
 		// 不在open 中 加入 队列
 		if !containsKey(tiled.GetKey(u.X, u.Y)) {
-			push(u)
+			// 检查 当前地图块是否可用
+			tile := tiled.Tiles[tiled.GetKey(u.X, u.Y)]
+			// 当前地图块 必须是移动 并且 行动力 允许
+			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
+				u.movePower = p.movePower - tile.Property.Mp
+				push(u)
+			}
+
 		}
 	}
 	if _, ok := paths[tiled.GetKey(d.X, d.Y)]; !ok {
 		if !containsKey(tiled.GetKey(d.X, d.Y)) {
-			push(d)
+			// 检查 当前地图块是否可用
+			tile := tiled.Tiles[tiled.GetKey(d.X, d.Y)]
+			// 当前地图块 必须是移动 并且 行动力 允许
+			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
+				d.movePower = p.movePower - tile.Property.Mp
+				push(d)
+			}
 		}
 	}
 	if _, ok := paths[tiled.GetKey(l.X, l.Y)]; !ok {
 		if !containsKey(tiled.GetKey(l.X, l.Y)) {
-			push(l)
+			// 检查 当前地图块是否可用
+			tile := tiled.Tiles[tiled.GetKey(l.X, l.Y)]
+			// 当前地图块 必须是移动 并且 行动力 允许
+			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
+				l.movePower = p.movePower - tile.Property.Mp
+				push(l)
+			}
 		}
 	}
 	if _, ok := paths[tiled.GetKey(r.X, r.Y)]; !ok {
 		if !containsKey(tiled.GetKey(r.X, r.Y)) {
-			push(r)
+			// 检查 当前地图块是否可用
+			tile := tiled.Tiles[tiled.GetKey(r.X, r.Y)]
+			// 当前地图块 必须是移动 并且 行动力 允许
+			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
+				r.movePower = p.movePower - tile.Property.Mp
+				push(r)
+			}
 		}
 	}
 
@@ -168,11 +213,27 @@ func (p *Path) Draw(screen *ebiten.Image) {
 	// close
 	for _, v := range paths {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(v.X*16), float64(v.Y*16)+float64(common.OffsetY))
+		op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
 		op.GeoM.Scale(common.Scale, common.Scale)
 		//screen.DrawImage(c.img_status1[(c.Count/5)%4], op)
-		screen.DrawImage(p.image.SubImage(image.Rect(19, 10, 35, 26)).(*ebiten.Image), op)
+		//screen.DrawImage(p.image.SubImage(image.Rect(19, 10, 35, 26)).(*ebiten.Image), op)
+
+		//screen.DrawImage(p.image.SubImage(image.Rect(0, 0, 10, 10)).(*ebiten.Image), op)
+		screen.DrawImage(p.image, op)
+
+		//v, i := rect(float32(v.X*16), float32(v.Y*16)+float32(common.OffsetY), 16, 16, color.RGBA{0x00, 0x80, 0x00, 0x80})
+		//screen.DrawTriangles(v, i, p.image, nil)
 	}
+}
+
+func (p *Path) Clear() {
+	// close
+	paths = make(map[string]*Path)
+	// 临时记录
+	open = make(map[string]*Path)
+
+	// 先进先出队列
+	patch = queue.NewQueue()
 }
 
 var open = make(map[string]*Path)
@@ -197,4 +258,58 @@ func pop() *Path {
 func push(p *Path) {
 	patch.EnQueue(p)
 	open[tiled.GetKey(p.X, p.Y)] = p
+}
+
+func rect(x, y, w, h float32, clr color.RGBA) ([]ebiten.Vertex, []uint16) {
+	r := float32(clr.R) / 0xff
+	g := float32(clr.G) / 0xff
+	b := float32(clr.B) / 0xff
+	a := float32(clr.A) / 0xff
+	x0 := x
+	y0 := y
+	x1 := x + w
+	y1 := y + h
+
+	return []ebiten.Vertex{
+		{
+			DstX:   x0,
+			DstY:   y0,
+			SrcX:   common.Scale,
+			SrcY:   common.Scale,
+			ColorR: r,
+			ColorG: g,
+			ColorB: b,
+			ColorA: a,
+		},
+		{
+			DstX:   x1,
+			DstY:   y0,
+			SrcX:   common.Scale,
+			SrcY:   common.Scale,
+			ColorR: r,
+			ColorG: g,
+			ColorB: b,
+			ColorA: a,
+		},
+		{
+			DstX:   x0,
+			DstY:   y1,
+			SrcX:   common.Scale,
+			SrcY:   common.Scale,
+			ColorR: r,
+			ColorG: g,
+			ColorB: b,
+			ColorA: a,
+		},
+		{
+			DstX:   x1,
+			DstY:   y1,
+			SrcX:   common.Scale,
+			SrcY:   common.Scale,
+			ColorR: r,
+			ColorG: g,
+			ColorB: b,
+			ColorA: a,
+		},
+	}, []uint16{0, 1, 2, 1, 2, 3}
 }
