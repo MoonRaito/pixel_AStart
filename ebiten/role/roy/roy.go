@@ -78,7 +78,7 @@ func (c *Roy) Update(dt float64) {
 		}
 	}
 	if c.Status == 2 {
-		if c.dt > 0.48 {
+		if c.dt > 1.0 {
 			c.dt = 0
 		}
 	}
@@ -143,23 +143,23 @@ func (c *Roy) status2(screen *ebiten.Image) {
 }
 
 func (c *Roy) status3(screen *ebiten.Image) {
-	i := 0
-	s := 0.12
-	sp := 0.12
-	if c.dt < s {
-		i = 0
-	} else if s <= c.dt && c.dt <= s+sp {
-		i = 1
-	} else if s+sp < c.dt && c.dt < s+(sp*2) {
-		i = 2
-	} else if s+(sp*3) <= c.dt {
-		i = 3
-	}
+	//i := 0
+	//s := 0.25
+	//sp := 0.25
+	//if c.dt <= s {
+	//	i = 0
+	//} else if s < c.dt && c.dt <= s+sp {
+	//	i = 1
+	//} else if s+sp < c.dt && c.dt <= s+(sp*2) {
+	//	i = 2
+	//} else if s+(sp*3) <= c.dt {
+	//	i = 3
+	//}
 
 	//fmt.Println((c.Count/5)%4)
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(c.X)-1, float64(c.Y)-5+float64(common.OffsetY))
 	op.GeoM.Scale(c.Scale, c.Scale)
-	//screen.DrawImage(c.imgStatus2[(c.Count/5)%3], op)
-	screen.DrawImage(c.imgStatus3[i], op)
+	screen.DrawImage(c.imgStatus3[(c.Count/10)%4], op)
+	//screen.DrawImage(c.imgStatus3[i], op)
 }
