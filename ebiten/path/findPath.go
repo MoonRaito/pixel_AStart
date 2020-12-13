@@ -21,7 +21,10 @@ type Path struct {
 	PX, PY int
 }
 
+// close
 var paths map[string]*Path
+
+// open 先进 先出
 var patch = queue.NewQueue()
 
 func NewPath() (*Path, error) {
@@ -42,6 +45,9 @@ func (p *Path) Find(x, y int) {
 
 	paths = make(map[string]*Path)
 
+	// 记录已查找过的
+	open = make(map[string]*Path)
+
 	pa := &Path{
 		X: x,
 		Y: y,
@@ -50,34 +56,51 @@ func (p *Path) Find(x, y int) {
 		PY: 0,
 	}
 
-	patch.EnQueue(pa)
+	push(pa)
 
 	// 查询路径  直到  open 列表为 空
-	go func() {
-		for {
-			if !findPath() {
-				break
-			}
-
-			fmt.Println(time.Now())
-			fmt.Println(len(paths))
-			//time.Sleep(10000)
-			time.Sleep(2e9)
-			fmt.Println(time.Now())
+	fmt.Println(time.Now())
+	for {
+		if !findPath() {
+			break
 		}
-	}()
+	}
+	fmt.Println(time.Now())
+	//go func() {
+	//	for {
+	//
+	//		// 500 毫秒
+	//		time.Sleep(time.Duration(100)*time.Millisecond)
+	//		fmt.Println("")
+	//		fmt.Println("************************")
+	//		fmt.Println(time.Now())
+	//
+	//		fmt.Println("open:"+strconv.Itoa(patch.Size()))
+	//		fmt.Println("close:"+strconv.Itoa(len(paths)))
+	//		if !findPath() {
+	//			break
+	//		}
+	//		fmt.Println("open:"+strconv.Itoa(patch.Size()))
+	//		fmt.Println("close:"+strconv.Itoa(len(paths)))
+	//
+	//		// 一秒
+	//		//time.Sleep(time.Duration(1)*time.Second)
+	//		//time.Sleep(2e9)
+	//		fmt.Println(time.Now())
+	//		fmt.Println("************************")
+	//		fmt.Println("")
+	//	}
+	//}()
 }
 
 func findPath() bool {
 
 	// 取一个值
-	deQueue := patch.DeQueue()
-	if deQueue == nil {
+	p := pop()
+	if p == nil {
 		return false
 	}
 
-	// 强制类型转换
-	p := deQueue.(*Path)
 	paths[tiled.GetKey(p.X, p.Y)] = p
 
 	// 上下左右
@@ -87,16 +110,25 @@ func findPath() bool {
 	r := NewPathByPare(p, 4)
 
 	if _, ok := paths[tiled.GetKey(u.X, u.Y)]; !ok {
-		patch.EnQueue(u)
+		// 不在open 中 加入 队列
+		if !containsKey(tiled.GetKey(u.X, u.Y)) {
+			push(u)
+		}
 	}
 	if _, ok := paths[tiled.GetKey(d.X, d.Y)]; !ok {
-		patch.EnQueue(d)
+		if !containsKey(tiled.GetKey(d.X, d.Y)) {
+			push(d)
+		}
 	}
 	if _, ok := paths[tiled.GetKey(l.X, l.Y)]; !ok {
-		patch.EnQueue(l)
+		if !containsKey(tiled.GetKey(l.X, l.Y)) {
+			push(l)
+		}
 	}
 	if _, ok := paths[tiled.GetKey(r.X, r.Y)]; !ok {
-		patch.EnQueue(r)
+		if !containsKey(tiled.GetKey(r.X, r.Y)) {
+			push(r)
+		}
 	}
 
 	return true
@@ -133,6 +165,7 @@ func NewPathByPare(pare *Path, t int) *Path {
 
 // 画路径
 func (p *Path) Draw(screen *ebiten.Image) {
+	// close
 	for _, v := range paths {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(v.X*16), float64(v.Y*16)+float64(common.OffsetY))
@@ -140,4 +173,28 @@ func (p *Path) Draw(screen *ebiten.Image) {
 		//screen.DrawImage(c.img_status1[(c.Count/5)%4], op)
 		screen.DrawImage(p.image.SubImage(image.Rect(19, 10, 35, 26)).(*ebiten.Image), op)
 	}
+}
+
+var open = make(map[string]*Path)
+
+// 是否存在
+func containsKey(key string) bool {
+	_, ok := open[key]
+	return ok
+}
+
+// 出
+func pop() *Path {
+	deQueue := patch.DeQueue()
+	if deQueue == nil {
+		return nil
+	}
+	// 强制类型转换
+	return deQueue.(*Path)
+}
+
+// 入
+func push(p *Path) {
+	patch.EnQueue(p)
+	open[tiled.GetKey(p.X, p.Y)] = p
 }
