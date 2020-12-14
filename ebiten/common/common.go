@@ -9,6 +9,9 @@ var (
 
 	// 真实路径
 	RealPath = ""
+
+	// 地图块大小
+	TileSize = 16
 )
 
 const (

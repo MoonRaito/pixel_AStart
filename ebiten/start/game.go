@@ -9,9 +9,8 @@ import (
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/path"
 	"pixel_AStart/ebiten/role/roy"
-	"strconv"
-
 	"pixel_AStart/ebiten/tiled"
+	"strconv"
 	"time"
 )
 
@@ -32,6 +31,8 @@ var sroy = &roy.Roy{
 var paths = &path.Path{}
 
 func init() {
+	// 设置偏移量
+	common.OffsetY = -176
 
 	common.Init()
 
@@ -71,18 +72,19 @@ func (g *Game) Update() error {
 
 	// 鼠标选中
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		x, y := ebiten.CursorPosition()
-		fmt.Println("x:" + strconv.Itoa(x) + "    y:" + strconv.Itoa(y))
-		fmt.Println(tiled.GetKey(int(float64(x)/(16*common.Scale)), int(float64(y)/(16*common.Scale))))
-		tile := tiled.Tiles[tiled.GetKey(int(float64(x)/(16*common.Scale)), int(float64(y)/(16*common.Scale)))]
-		if tile != nil {
-			fmt.Println("tile name type:" + tile.Name + "**" + tile.Type)
-		} else {
-			fmt.Println("tile is nil")
-		}
-
-		sroy.X = x/common.Scale - ((x / common.Scale) % 16)
-		sroy.Y = y/common.Scale - ((y / common.Scale) % 16) + common.OffsetY
+		//x, y := ebiten.CursorPosition()
+		//fmt.Println("x:" + strconv.Itoa(x) + "    y:" + strconv.Itoa(y))
+		//fmt.Println(tiled.GetKey(int(float64(x)/(16*common.Scale)), int(float64(y)/(16*common.Scale))))
+		//tile := tiled.Tiles[tiled.GetKey(int(float64(x)/(16*common.Scale)), int(float64(y)/(16*common.Scale)))]
+		//if tile != nil {
+		//	fmt.Println("tile name type:" + tile.Name + "**" + tile.Type)
+		//} else {
+		//	fmt.Println("tile is nil")
+		//}
+		//
+		//sroy.X = x/common.Scale - ((x / common.Scale) % 16)
+		//sroy.Y = y/common.Scale - ((y / common.Scale) % 16) + common.OffsetY
+		fmt.Println("pianyiliang:" + strconv.Itoa(common.OffsetY))
 	}
 
 	// 光标
@@ -93,20 +95,53 @@ func (g *Game) Update() error {
 	// 光标 是否选中 精灵  后期可改为 循环多个角色
 	if cursor.X == sroy.X && cursor.Y == sroy.Y {
 		cursor.IsSelected = true
-		sroy.IsSelected = true
+
+		// 当前角色 活跃状态 改为 指向
+		if sroy.Status == 1 {
+			sroy.Status = 2
+		}
 	} else {
 		cursor.IsSelected = false
-		sroy.IsSelected = false
+		// 当前角色 状态 改为 指活跃
+		if sroy.Status == 2 {
+			sroy.Status = 1
+		}
 	}
 
 	// 选中并按下空格
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) && sroy.IsSelected {
-		paths.Find(sroy.X/16, sroy.Y/16)
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		if sroy.Status == 3 {
+			// 光标选中角色时  显示物品  等操作
+			if cursor.X == sroy.X && cursor.Y == sroy.Y {
 
-		sroy.Status = 2
+			} else {
+				fmt.Println("1：" + tiled.GetKey(sroy.X, sroy.Y))
+				fmt.Println("2：" + tiled.GetKey(cursor.X, cursor.Y))
+				// 光标 是否 是在路径范围内
+				if path.In(cursor.X/common.TileSize, cursor.Y/common.TileSize) {
+					sroy.X = cursor.X
+					sroy.Y = cursor.Y
+
+					fmt.Println("我是空格：" + tiled.GetKey(sroy.X/common.TileSize, sroy.Y/common.TileSize))
+				} else {
+					// 声音特效
+				}
+			}
+
+			// 待机
+			//sroy.Status = 8
+		}
+
+		// 状态 1 寻路
+		if sroy.Status == 2 {
+			paths.Find(sroy.X/16, sroy.Y/16)
+			// 选中
+			sroy.Status = 3
+		}
+
 	}
 	// 临时 用c 清图
-	if inpututil.IsKeyJustPressed(ebiten.KeyC) && sroy.IsSelected {
+	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
 		paths.Clear()
 
 		sroy.Status = 1

@@ -11,7 +11,8 @@ import (
 )
 
 type Path struct {
-	image *ebiten.Image
+	image     *ebiten.Image
+	imgAttack *ebiten.Image
 	// 当前
 	X, Y int
 
@@ -24,6 +25,9 @@ type Path struct {
 
 // close
 var paths map[string]*Path
+
+// 攻击范围
+var attackRange map[string]*Path
 
 // open 先进 先出
 var patch = queue.NewQueue()
@@ -48,8 +52,12 @@ func NewPath() (*Path, error) {
 	//imgPath.Fill(color.RGBA{0x66, 0xcc, 0xff, 0xff})
 	//imgPath.Fill(color.RGBA{0x66, 0xcc, 0xff, 0xff})
 
+	//DC143C
+	imgAttack := ebiten.NewImage(15, 15)
+	imgAttack.Fill(color.RGBA{0xDC, 0x14, 0x3C, 0xC8})
 	pa := &Path{
-		image: imgPath,
+		image:     imgPath,
+		imgAttack: imgAttack,
 	}
 
 	return pa, nil
@@ -84,6 +92,9 @@ func (p *Path) Find(x, y int) {
 			break
 		}
 	}
+
+	findAttack()
+
 	fmt.Println(time.Now())
 	//go func() {
 	//	for {
@@ -179,6 +190,34 @@ func findPath() bool {
 	return true
 }
 
+func findAttack() bool {
+	attackRange = make(map[string]*Path)
+	// 循环路径
+	for _, v := range paths {
+
+		// 简易计算 只有一格攻击力
+
+		// 上下左右 是否在 路径中
+		u := NewPathByPare(v, 1)
+		d := NewPathByPare(v, 2)
+		l := NewPathByPare(v, 3)
+		r := NewPathByPare(v, 4)
+		if _, ok := paths[tiled.GetKey(u.X, u.Y)]; !ok {
+			attackRange[tiled.GetKey(u.X, u.Y)] = u
+		}
+		if _, ok := paths[tiled.GetKey(d.X, d.Y)]; !ok {
+			attackRange[tiled.GetKey(d.X, d.Y)] = d
+		}
+		if _, ok := paths[tiled.GetKey(l.X, l.Y)]; !ok {
+			attackRange[tiled.GetKey(l.X, l.Y)] = l
+		}
+		if _, ok := paths[tiled.GetKey(r.X, r.Y)]; !ok {
+			attackRange[tiled.GetKey(r.X, r.Y)] = r
+		}
+	}
+	return true
+}
+
 // 根据 父 创建
 func NewPathByPare(pare *Path, t int) *Path {
 	x := pare.X
@@ -224,6 +263,14 @@ func (p *Path) Draw(screen *ebiten.Image) {
 		//v, i := rect(float32(v.X*16), float32(v.Y*16)+float32(common.OffsetY), 16, 16, color.RGBA{0x00, 0x80, 0x00, 0x80})
 		//screen.DrawTriangles(v, i, p.image, nil)
 	}
+
+	// 攻击范围
+	for _, v := range attackRange {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
+		op.GeoM.Scale(common.Scale, common.Scale)
+		screen.DrawImage(p.imgAttack, op)
+	}
 }
 
 func (p *Path) Clear() {
@@ -231,6 +278,8 @@ func (p *Path) Clear() {
 	paths = make(map[string]*Path)
 	// 临时记录
 	open = make(map[string]*Path)
+	// 攻击范围
+	attackRange = make(map[string]*Path)
 
 	// 先进先出队列
 	patch = queue.NewQueue()
@@ -258,6 +307,11 @@ func pop() *Path {
 func push(p *Path) {
 	patch.EnQueue(p)
 	open[tiled.GetKey(p.X, p.Y)] = p
+}
+
+func In(x, y int) bool {
+	_, ok := paths[tiled.GetKey(x, y)]
+	return ok
 }
 
 func rect(x, y, w, h float32, clr color.RGBA) ([]ebiten.Vertex, []uint16) {

@@ -37,11 +37,15 @@ func (c *Cursor) Init(url string) {
 	}
 
 	c.image = img
-	c.X = 16 * 5
-	c.Y = 16 * 5
 	c.Count = 0
-	c.screenX = 16 * 5
-	c.screenY = 16 * 5
+	//c.X = 16 * 5
+	//c.Y = 16 * 5
+	//c.screenX = 16 * 5
+	//c.screenY = 16 * 5
+	c.X = 2 * 16
+	c.Y = 18 * 16
+	c.screenX = 16 * 2
+	c.screenY = 16 * 7
 
 	// 精灵动画
 	c.images = make([]*ebiten.Image, 2)

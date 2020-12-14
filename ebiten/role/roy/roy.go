@@ -13,7 +13,7 @@ type Roy struct {
 	Count, X, Y int
 	dt          float64
 
-	// 状态 1:指向 2：选中 3：移动上 4：移动下 5:移动左 6：移动 7：攻击  8：待机
+	// 状态 1：活跃 2:指向 3：选中 4：移动上 5：移动下 6:移动左 7：移动 8：攻击  9：待机
 	Status int
 	// 是否选中
 	IsSelected bool
@@ -35,10 +35,10 @@ func (c *Roy) Init(url string) {
 	}
 
 	c.image = img
-	//c.X = 2 * 16
-	//c.Y = 18 * 16
-	c.X = 5 * 16
-	c.Y = 5 * 16
+	c.X = 2 * 16
+	c.Y = 18 * 16
+	//c.X = 5 * 16
+	//c.Y = 5 * 16
 	c.Count = 0
 
 	c.imgStatus1 = make([]*ebiten.Image, 3)
@@ -88,15 +88,15 @@ func (c *Roy) Update(dt float64) {
 func (c *Roy) Draw(screen *ebiten.Image) {
 
 	// 未选中时 并且 状态为 活跃
-	if !c.IsSelected && c.Status == 1 {
+	if c.Status == 1 {
 		c.status1(screen)
 	}
 	// 光标 指向时
-	if c.IsSelected && c.Status == 1 {
+	if c.Status == 2 {
 		c.status2(screen)
 	}
 	// 光标 选中时
-	if c.IsSelected && c.Status == 2 {
+	if c.Status == 3 {
 		c.status3(screen)
 	}
 
