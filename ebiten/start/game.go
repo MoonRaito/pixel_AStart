@@ -22,9 +22,10 @@ var cursor = &tiled.Cursor{
 
 // 主角 罗伊
 var sroy = &roy.Roy{
-	Count:  0,
-	Scale:  common.Scale,
-	Status: 1,
+	Count:     0,
+	Scale:     common.Scale,
+	Status:    1,
+	MoveSpeed: 0.1,
 }
 
 // path 可行进 路径
@@ -92,6 +93,9 @@ func (g *Game) Update() error {
 	// 罗伊
 	sroy.Update(g.dt)
 
+	// 选中角色后的路径
+	path.MovePath(cursor.X/common.TileSize, cursor.Y/common.TileSize)
+
 	// 光标 是否选中 精灵  后期可改为 循环多个角色
 	if cursor.X == sroy.X && cursor.Y == sroy.Y {
 		cursor.IsSelected = true
@@ -115,14 +119,23 @@ func (g *Game) Update() error {
 			if cursor.X == sroy.X && cursor.Y == sroy.Y {
 
 			} else {
-				fmt.Println("1：" + tiled.GetKey(sroy.X, sroy.Y))
-				fmt.Println("2：" + tiled.GetKey(cursor.X, cursor.Y))
 				// 光标 是否 是在路径范围内
 				if path.In(cursor.X/common.TileSize, cursor.Y/common.TileSize) {
-					sroy.X = cursor.X
-					sroy.Y = cursor.Y
+					//sroy.X = cursor.X
+					//sroy.Y = cursor.Y
 
-					fmt.Println("我是空格：" + tiled.GetKey(sroy.X/common.TileSize, sroy.Y/common.TileSize))
+					// 角色被指向时
+					if sroy.Status == 2 {
+					}
+
+					// 如果 已被选中 ，那么开始移动角色
+					if sroy.Status == 3 {
+						sroy.MoveX = float64(sroy.X)
+						sroy.MoveY = float64(sroy.Y)
+						sroy.Moving()
+						sroy.MoveTo()
+						sroy.Status = 4
+					}
 				} else {
 					// 声音特效
 				}

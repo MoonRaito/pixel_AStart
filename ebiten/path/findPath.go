@@ -1,6 +1,7 @@
 package path
 
 import (
+	"container/list"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
@@ -13,6 +14,7 @@ import (
 type Path struct {
 	image     *ebiten.Image
 	imgAttack *ebiten.Image
+	imgMove   *ebiten.Image
 	// 当前
 	X, Y int
 
@@ -55,9 +57,14 @@ func NewPath() (*Path, error) {
 	//DC143C
 	imgAttack := ebiten.NewImage(15, 15)
 	imgAttack.Fill(color.RGBA{0xDC, 0x14, 0x3C, 0xC8})
+
+	//66CD00
+	imgMove := ebiten.NewImage(15, 15)
+	imgMove.Fill(color.RGBA{0x66, 0xCD, 0x00, 0xC8})
 	pa := &Path{
 		image:     imgPath,
 		imgAttack: imgAttack,
+		imgMove:   imgMove,
 	}
 
 	return pa, nil
@@ -271,6 +278,22 @@ func (p *Path) Draw(screen *ebiten.Image) {
 		op.GeoM.Scale(common.Scale, common.Scale)
 		screen.DrawImage(p.imgAttack, op)
 	}
+
+	// 移动路径
+	//for _, v := range smovepath {
+	//	op := &ebiten.DrawImageOptions{}
+	//	op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
+	//	op.GeoM.Scale(common.Scale, common.Scale)
+	//	screen.DrawImage(p.imgMove, op)
+	//}
+
+	for i := MovepathList.Front(); i != nil; i = i.Next() {
+
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(i.Value.(*Path).X*16)+1, float64(i.Value.(*Path).Y*16)+1+float64(common.OffsetY))
+		op.GeoM.Scale(common.Scale, common.Scale)
+		screen.DrawImage(p.imgMove, op)
+	}
 }
 
 func (p *Path) Clear() {
@@ -366,4 +389,43 @@ func rect(x, y, w, h float32, clr color.RGBA) ([]ebiten.Vertex, []uint16) {
 			ColorA: a,
 		},
 	}, []uint16{0, 1, 2, 1, 2, 3}
+}
+
+// 选择移动的路径 select move path
+//var smovepath map[string]*Path
+//// 移动路径
+//func MovePath(x,y int) {
+//	key := tiled.GetKey(x, y)
+//	if p, ok := paths[key]; ok {
+//		smovepath = make(map[string]*Path)
+//		smovepath[key] = p
+//		for {
+//			key = tiled.GetKey(p.PX, p.PY)
+//			p, ok = paths[key]
+//			if ok {
+//				smovepath[key] = p
+//			}else {
+//				break
+//			}
+//		}
+//	}
+//}
+var MovepathList list.List
+
+// 移动路径
+func MovePath(x, y int) {
+	key := tiled.GetKey(x, y)
+	if p, ok := paths[key]; ok {
+		MovepathList.Init()
+		MovepathList.PushFront(p)
+		for {
+			key = tiled.GetKey(p.PX, p.PY)
+			p, ok = paths[key]
+			if ok {
+				MovepathList.PushFront(p)
+			} else {
+				break
+			}
+		}
+	}
 }
