@@ -30,6 +30,13 @@ type Roy struct {
 	// 选中
 	imgStatus3 []*ebiten.Image
 
+	// 移动上
+	imgStatus4 []*ebiten.Image
+	// 移动左
+	imgStatus5 []*ebiten.Image
+	// 移动右
+	imgStatus6 []*ebiten.Image
+
 	// 需要移动到
 	MoveX, MoveY           float64
 	MoveNumber             float64
@@ -73,6 +80,25 @@ func (c *Roy) Init(url string) {
 	c.imgStatus3[1] = img.SubImage(image.Rect(41, 39, 61, 59)).(*ebiten.Image)
 	c.imgStatus3[2] = img.SubImage(image.Rect(66, 39, 86, 59)).(*ebiten.Image)
 	c.imgStatus3[3] = img.SubImage(image.Rect(91, 39, 111, 59)).(*ebiten.Image)
+
+	// 移动上
+	c.imgStatus4 = make([]*ebiten.Image, 4)
+	c.imgStatus4[0] = img.SubImage(image.Rect(126, 39, 146, 59)).(*ebiten.Image)
+	c.imgStatus4[1] = img.SubImage(image.Rect(149, 39, 169, 59)).(*ebiten.Image)
+	c.imgStatus4[2] = img.SubImage(image.Rect(173, 39, 193, 59)).(*ebiten.Image)
+	c.imgStatus4[3] = img.SubImage(image.Rect(196, 39, 216, 59)).(*ebiten.Image)
+	// 移动左 缺少素材临时用右代替
+	c.imgStatus5 = make([]*ebiten.Image, 4)
+	c.imgStatus5[0] = img.SubImage(image.Rect(229, 39, 249, 59)).(*ebiten.Image)
+	c.imgStatus5[1] = img.SubImage(image.Rect(256, 39, 276, 59)).(*ebiten.Image)
+	c.imgStatus5[2] = img.SubImage(image.Rect(286, 39, 306, 59)).(*ebiten.Image)
+	c.imgStatus5[3] = img.SubImage(image.Rect(314, 39, 334, 59)).(*ebiten.Image)
+	// 移动右
+	c.imgStatus6 = make([]*ebiten.Image, 4)
+	c.imgStatus6[0] = img.SubImage(image.Rect(229, 39, 249, 59)).(*ebiten.Image)
+	c.imgStatus6[1] = img.SubImage(image.Rect(256, 39, 276, 59)).(*ebiten.Image)
+	c.imgStatus6[2] = img.SubImage(image.Rect(286, 39, 306, 59)).(*ebiten.Image)
+	c.imgStatus6[3] = img.SubImage(image.Rect(314, 39, 334, 59)).(*ebiten.Image)
 }
 
 func (c *Roy) Update(dt float64) {
@@ -218,36 +244,44 @@ func (c *Roy) UpdateMove(screen *ebiten.Image) {
 
 	// 到达指定节点后 开始下一个
 	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
+		// 到达终点
 		if !c.MoveTo() {
 			c.Status = 3
+
+			// 隐藏路径
+			//未实现
+
 			return
 		}
-	}
-
-	// 上
-	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) < int(c.MoveEndY) {
-		c.MoveY = c.MoveY + (c.MoveSpeed * c.dt)
-	}
-
-	// 下
-	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) > int(c.MoveEndY) {
-		c.MoveY = c.MoveY - (c.MoveSpeed * c.dt)
-	}
-
-	// 左
-	if int(c.MoveX) > int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
-		c.MoveX = c.MoveX - (c.MoveSpeed * c.dt)
-	}
-
-	// 右
-	if int(c.MoveX) < int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
-		c.MoveX = c.MoveX + (c.MoveSpeed * c.dt)
 	}
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(c.MoveX-1, c.MoveY-5+float64(common.OffsetY))
 	op.GeoM.Scale(c.Scale, c.Scale)
-	screen.DrawImage(c.imgStatus3[(c.Count/10)%4], op)
+	// 下
+	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) < int(c.MoveEndY) {
+		c.MoveY = c.MoveY + (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.imgStatus3[(c.Count/10)%4], op)
+	}
+
+	// 上
+	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) > int(c.MoveEndY) {
+		c.MoveY = c.MoveY - (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.imgStatus4[(c.Count/10)%4], op)
+	}
+
+	// 左
+	if int(c.MoveX) > int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
+		c.MoveX = c.MoveX - (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.imgStatus5[(c.Count/10)%4], op)
+	}
+
+	// 右
+	if int(c.MoveX) < int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
+		c.MoveX = c.MoveX + (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.imgStatus6[(c.Count/10)%4], op)
+	}
+
 }
 
 //func (c *Roy) MoveTo(screen *ebiten.Image) {
