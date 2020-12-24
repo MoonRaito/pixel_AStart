@@ -69,6 +69,7 @@ func Init() {
 
 	// 加载地图中的 object 属性
 	Tiles = make(map[string]*Tile)
+	Worlds = World{}
 	for _, og := range m.ObjectGroups {
 		for _, o := range og.Objects {
 			//image := img.SubImage(image.Rect(sx, sy, sx+tileSize, sy+tileSize)).(*ebiten.Image)
@@ -76,7 +77,7 @@ func Init() {
 			x := int(o.X)
 			y := int(o.Y) - 16
 			eimage := img.SubImage(image.Rect(x, y, int(o.X)+16, int(o.Y))).(*ebiten.Image)
-			tile := Tile{
+			tile := &Tile{
 				Eimage:   eimage,
 				Name:     o.Name,
 				Type:     o.Type,
@@ -84,9 +85,9 @@ func Init() {
 				Y:        y,
 				Property: initProperty(o.Type),
 			}
-			Tiles[GetKey(x/16, y/16)] = &tile
+			Tiles[GetKey(x/16, y/16)] = tile
 
-			Worlds.SetTile(&tile, x/16, y/16)
+			Worlds.SetTile(tile, x/16, y/16)
 		}
 	}
 }
