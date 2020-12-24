@@ -23,6 +23,7 @@ type Path struct {
 
 	// 移动力
 	movePower int
+	MovePower int
 }
 
 // close

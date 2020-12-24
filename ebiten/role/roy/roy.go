@@ -47,6 +47,12 @@ type Roy struct {
 	MoveSpeed float64
 }
 
+func (c *Roy) PathNeighborCost(to path.IPath) float64 {
+	//toT := to.(*Roy)
+	//return KindCosts[toT.Kind]
+	return 0
+}
+
 func (c *Roy) Init(url string) {
 	img, _, err := ebitenutil.NewImageFromFile(url)
 	if err != nil {

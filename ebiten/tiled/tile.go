@@ -85,6 +85,8 @@ func Init() {
 				Property: initProperty(o.Type),
 			}
 			Tiles[GetKey(x/16, y/16)] = &tile
+
+			Worlds.SetTile(&tile, x/16, y/16)
 		}
 	}
 }
@@ -212,4 +214,25 @@ func initProperty(t string) *property {
 	default:
 		return nil
 	}
+}
+
+// 世界地图
+type World map[int]map[int]*Tile
+
+var Worlds World
+
+// SetTile sets a tile at the given coordinates in the world.
+func (w World) SetTile(t *Tile, x, y int) {
+	if w[x] == nil {
+		w[x] = map[int]*Tile{}
+	}
+	w[x][y] = t
+}
+
+// Tile gets the tile at the given coordinates in the world.
+func (w World) Tile(x, y int) *Tile {
+	if w[x] == nil {
+		return nil
+	}
+	return w[x][y]
 }
