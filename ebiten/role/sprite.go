@@ -50,12 +50,20 @@ type Sprite struct {
 	MoveSpeed float64
 
 	movePower int
+
+	// 路径  close
+	Paths map[string]*path.Path
+
+	// 攻击范围 open
+	AttackRange map[string]*path.Path
 }
 
 // open 先进 先出
 var nq = queue.NewQueue()
 
 func (t *Sprite) FindPath(x, y int) {
+	t.AttackRange = make(map[string]*path.Path)
+	t.Paths = make(map[string]*path.Path)
 
 	pa := &path.Path{
 		X: x,
@@ -75,28 +83,53 @@ func (t *Sprite) FindPath(x, y int) {
 			// There's no path, return found false.
 			return
 		}
+
+		p := nq.DeQueue().(*path.Path)
+
+		// open中删除
+		delete(t.AttackRange, tiled.GetKey(p.X, p.Y))
+		// 加入close
+		t.Paths[tiled.GetKey(p.X, p.Y)] = p
+
+		//for _, neighbor := range t.PathNeighbors() {
+		//
+		//}
 	}
 }
 
-func (t *Sprite) PathNeighbors() []*tiled.Tile {
+func (t *Sprite) PathNeighbors() []path.IPath {
 	fmt.Println(strconv.Itoa(t.X) + "  " + strconv.Itoa(t.Y))
-	neighbors := []*tiled.Tile{}
-	for _, offset := range [][]int{
-		{-1, 0},
-		{1, 0},
-		{0, -1},
-		{0, 1},
-	} {
-		// 排查掉在地图内 并且 不可抵达
-		if n := tiled.Worlds.Tile(t.X+offset[0], t.Y+offset[1]); n != nil &&
-			n.Property.Mp != 0 {
-			neighbors = append(neighbors, n)
-		}
-	}
-	return neighbors
+	//neighbors := []*path.IPath{}
+	//for _, offset := range [][]int{
+	//	{-1, 0},
+	//	{1, 0},
+	//	{0, -1},
+	//	{0, 1},
+	//} {
+	//	// 排查掉在地图内 并且 不可抵达
+	//	if n := tiled.Worlds.Tile(t.X+offset[0], t.Y+offset[1]); n != nil &&
+	//		n.Property.Mp != 0 {
+	//
+	//		p:=&path.Path{
+	//			X: x,
+	//			Y: y,
+	//
+	//			PX: pare.X,
+	//			PY: pare.Y,
+	//		}
+	//
+	//		neighbors = append(neighbors, n)
+	//	}
+	//}
+	//return neighbors
 }
 
 // PathNeighborCost returns the movement cost of the directly neighboring tile.
-func (t *Sprite) PathNeighborCost(to tiled.Tile) int {
-	return to.Property.Mp
+func (t *Sprite) PathNeighborCost(to path.IPath) int {
+	return 0
+}
+
+func (t *Sprite) PathEstimatedCost(to path.IPath) int {
+
+	return 0
 }
