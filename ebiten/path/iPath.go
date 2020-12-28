@@ -2,7 +2,9 @@ package path
 
 import (
 	"container/heap"
+	"fmt"
 	"pixel_AStart/ebiten/queue"
+	"strconv"
 )
 
 type IPath interface {
@@ -67,20 +69,23 @@ func GetPath(from IPath) (path []IPath, distance float64, found bool) {
 		for _, neighbor := range current.pather.PathNeighbors() {
 			cost := current.cost + current.pather.PathNeighborCost(neighbor)
 			neighborNode := nm.get(neighbor)
-			if cost < neighborNode.cost {
-				if neighborNode.open {
-					heap.Remove(nq, neighborNode.index)
-				}
-				neighborNode.open = false
-				neighborNode.closed = false
-			}
-			if !neighborNode.open && !neighborNode.closed {
-				neighborNode.cost = cost
-				neighborNode.open = true
-				neighborNode.rank = cost + neighbor.PathEstimatedCost(to)
-				neighborNode.parent = current
-				heap.Push(nq, neighborNode)
-			}
+
+			fmt.Println("cost:" + strconv.Itoa(cost) + "    neighborNode:" + strconv.Itoa(neighborNode.cost))
+
+			//if cost < neighborNode.cost {
+			//	if neighborNode.open {
+			//		heap.Remove(nq, neighborNode.index)
+			//	}
+			//	neighborNode.open = false
+			//	neighborNode.closed = false
+			//}
+			//if !neighborNode.open && !neighborNode.closed {
+			//	neighborNode.cost = cost
+			//	neighborNode.open = true
+			//	neighborNode.rank = cost + neighbor.PathEstimatedCost(to)
+			//	neighborNode.parent = current
+			//	heap.Push(nq, neighborNode)
+			//}
 		}
 
 	}

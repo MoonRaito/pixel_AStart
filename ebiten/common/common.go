@@ -23,6 +23,8 @@ const (
 )
 
 func Init() {
+	// 偏移量
+	OffsetY = -176
 	dir, _ := os.Getwd()
 	RealPath = dir
 }

@@ -173,8 +173,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 
 	ebiten.SetWindowSize(screenWidth/2, screenHeight)
-	ebiten.SetWindowTitle("happy game")
-	// Call ebiten.RunGame to start your game loop.
+	ebiten.SetWindowTitle("happy igame")
+	// Call ebiten.RunGame to start your igame loop.
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}

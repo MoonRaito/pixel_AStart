@@ -63,7 +63,7 @@ func NewGame() (*Game, error) {
 	return g, nil
 }
 
-// Update proceeds the game state.
+// Update proceeds the igame state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
 	g.dt = time.Since(g.last).Seconds()
@@ -171,14 +171,14 @@ func (g *Game) Update() error {
 	//	}
 	//}
 
-	// Write your game's logical update.
+	// Write your igame's logical update.
 	return nil
 }
 
-// Draw draws the game screen.
+// Draw draws the igame screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
-	// Write your game's rendering.
+	// Write your igame's rendering.
 
 	// 加载地图
 	tiled.Draw(screen)

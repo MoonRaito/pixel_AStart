@@ -1,4 +1,4 @@
-package tiled
+package _map
 
 import (
 	"bytes"
@@ -16,7 +16,6 @@ import (
 */
 var (
 	MapWidth, MapHeight int
-	Tiles               map[string]*Tile
 )
 
 type Tile struct {
@@ -54,7 +53,7 @@ func (s *Tile) In(x, y int) bool {
 // 初始化地图块
 func Init() {
 	// 加载地图
-	m, err := ReadFileRealPath("/resource/01/base01.tmx")
+	m, err := ReadFile("./resource/01/base01.tmx")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,11 +62,7 @@ func Init() {
 	MapHeight = m.Height * m.TileHeight
 
 	// 基础图片
-	//img, _, err := ebitenutil.NewImageFromFile(common.RealPath + "/resource/01/base.png")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
+	//img, _, err := ebitenutil.NewImageFromFile(common.RealPath + "/resource/01/base01.png")
 	img1, _, err := image.Decode(bytes.NewReader(images.Base_png))
 	if err != nil {
 		log.Fatal(err)
@@ -75,7 +70,6 @@ func Init() {
 	img := ebiten.NewImageFromImage(img1)
 
 	// 加载地图中的 object 属性
-	Tiles = make(map[string]*Tile)
 	Worlds = World{}
 	for _, og := range m.ObjectGroups {
 		for _, o := range og.Objects {
@@ -92,7 +86,6 @@ func Init() {
 				Y:        y,
 				Property: initProperty(o.Type),
 			}
-			Tiles[GetKey(x/16, y/16)] = tile
 
 			Worlds.SetTile(tile, x/16, y/16)
 		}
@@ -104,22 +97,14 @@ func GetKey(x int, y int) string {
 }
 
 func Draw(screen *ebiten.Image) {
-	for _, tile := range Tiles {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(tile.X), float64(tile.Y)+float64(common.OffsetY))
-		op.GeoM.Scale(common.Scale, common.Scale)
-		//op.GeoM.Scale(
-		//	math.Pow(1.01, float64(g.camera.ZoomFactor)),
-		//	math.Pow(1.01, float64(g.camera.ZoomFactor)),
-		//)
-		screen.DrawImage(tile.Eimage, op)
-
-		//g.camera.Render(tile.Eimage, screen)
+	for _, tiles := range Worlds {
+		for _, tile := range tiles {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(tile.X), float64(tile.Y)+float64(common.OffsetY))
+			op.GeoM.Scale(common.Scale, common.Scale)
+			screen.DrawImage(tile.Eimage, op)
+		}
 	}
-}
-
-func check() {
-
 }
 
 // 砖块属性

@@ -8,6 +8,7 @@ import (
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/queue"
 	"pixel_AStart/ebiten/tiled"
+	"strconv"
 	"time"
 )
 
@@ -429,4 +430,45 @@ func MovePath(x, y int) {
 			}
 		}
 	}
+}
+
+/**** 新架构 **********/
+
+// 实现接口
+func (p *Path) PathNeighbors() []IPath {
+	fmt.Println(strconv.Itoa(p.X) + "  " + strconv.Itoa(p.Y))
+	var neighbors []IPath
+	//neighbors := []IPath{}
+	for _, offset := range [][]int{
+		{-1, 0},
+		{1, 0},
+		{0, -1},
+		{0, 1},
+	} {
+		// 排查掉在地图内 并且 不可抵达
+		if n := tiled.Worlds.Tile(p.X+offset[0], p.Y+offset[1]); n != nil &&
+			n.Property.Mp != 0 {
+
+			pp := &Path{
+				X: 1,
+				Y: 2,
+
+				PX: 1,
+				PY: 2,
+			}
+
+			neighbors = append(neighbors, pp)
+		}
+	}
+	return neighbors
+}
+
+// PathNeighborCost returns the movement cost of the directly neighboring tile.
+func (p *Path) PathNeighborCost(to IPath) int {
+	return 0
+}
+
+func (p *Path) PathEstimatedCost(to IPath) int {
+
+	return 0
 }
