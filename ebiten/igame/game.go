@@ -6,7 +6,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"pixel_AStart/ebiten/camera"
 	"pixel_AStart/ebiten/common"
+	"pixel_AStart/ebiten/igame/cursor"
 	_map "pixel_AStart/ebiten/igame/map"
+	"pixel_AStart/ebiten/igame/path"
+	"pixel_AStart/ebiten/igame/role"
 	"time"
 )
 
@@ -15,6 +18,14 @@ func init() {
 	common.Init()
 	// 地图
 	_map.Init()
+
+	// 光标
+	cursor.Cursor_Init()
+
+	role.Init()
+
+	// 初始化路径
+	path.Init()
 
 }
 
@@ -36,6 +47,11 @@ func NewGame() (*Game, error) {
 // Update proceeds the igame state.
 // Update is called every tick (1/60 [s] by default).
 func (g *Game) Update() error {
+	g.dt = time.Since(g.last).Seconds()
+	g.last = time.Now()
+
+	cursor.Icursor.Update(g.dt)
+	role.Update(g.dt)
 
 	return nil
 }
@@ -45,6 +61,10 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 
 	_map.Draw(screen)
+	path.IPath.Draw(screen)
+
+	cursor.Icursor.Draw(screen)
+	role.Draw(screen)
 
 	// tps: 每秒调用多少次 更新update
 	ebitenutil.DebugPrint(
