@@ -45,10 +45,10 @@ func Init_wolt() *role.Sprite {
 	// 宽 20
 	// 高 20
 	sprite.ImgStatus3 = make([]*ebiten.Image, 4)
-	sprite.ImgStatus3[0] = img.SubImage(image.Rect(18, 39, 38, 59)).(*ebiten.Image)
-	sprite.ImgStatus3[1] = img.SubImage(image.Rect(41, 39, 61, 59)).(*ebiten.Image)
-	sprite.ImgStatus3[2] = img.SubImage(image.Rect(66, 39, 86, 59)).(*ebiten.Image)
-	sprite.ImgStatus3[3] = img.SubImage(image.Rect(91, 39, 111, 59)).(*ebiten.Image)
+	sprite.ImgStatus3[0] = img.SubImage(image.Rect(7, 295, 38, 59)).(*ebiten.Image)
+	sprite.ImgStatus3[1] = img.SubImage(image.Rect(41, 295, 61, 59)).(*ebiten.Image)
+	sprite.ImgStatus3[2] = img.SubImage(image.Rect(66, 295, 86, 59)).(*ebiten.Image)
+	sprite.ImgStatus3[3] = img.SubImage(image.Rect(91, 295, 111, 59)).(*ebiten.Image)
 
 	// 移动上
 	sprite.ImgStatus4 = make([]*ebiten.Image, 4)
