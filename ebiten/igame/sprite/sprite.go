@@ -2,7 +2,6 @@ package role
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/igame/cursor"
 	"pixel_AStart/ebiten/igame/path"
@@ -91,16 +90,6 @@ func (s *Sprite) Update(dt float64) {
 		// 当前角色 状态 改为 指活跃
 		if s.Status == 2 {
 			s.Status = 1
-		}
-	}
-
-	// 空格是否被选中
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		// 状态 1 寻路
-		if s.Status == 2 {
-			path.IPath.Find(s.X/16, s.Y/16)
-			// 选中
-			s.Status = 3
 		}
 	}
 

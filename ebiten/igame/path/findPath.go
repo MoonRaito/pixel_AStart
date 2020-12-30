@@ -25,7 +25,6 @@ type Path struct {
 	PX, PY int
 
 	// 移动力
-	movePower int
 	MovePower int
 }
 
@@ -75,7 +74,7 @@ func (p *Path) Find(x, y int) {
 		PX: 0,
 		PY: 0,
 
-		movePower: 6,
+		MovePower: 6,
 	}
 
 	// 加入队列
@@ -129,12 +128,6 @@ func findPath() bool {
 
 	paths[tiled.GetKey(p.X, p.Y)] = p
 
-	// 上下左右
-	u := NewPathByPare(p, 1)
-	d := NewPathByPare(p, 2)
-	l := NewPathByPare(p, 3)
-	r := NewPathByPare(p, 4)
-
 	for _, offset := range [][]int{
 		{-1, 0},
 		{1, 0},
@@ -142,58 +135,27 @@ func findPath() bool {
 		{0, 1},
 	} {
 		if n := _map.Worlds.Tile(p.X+offset[0], p.Y+offset[1]); n != nil {
-			// 当前地图块 必须是移动 并且 行动力 允许
-			if n.Property.Mp != 0 && p.movePower-n.Property.Mp > 0 {
-				u.movePower = p.movePower - n.Property.Mp
-				push(u)
-			}
-		}
-	}
+			x := n.X / common.TileSize
+			y := n.Y / common.TileSize
+			// 不在open 和 close 中
+			if _, ok := paths[tiled.GetKey(x, y)]; !ok {
+				if !containsKey(tiled.GetKey(x, y)) {
+					// 当前地图块 必须是移动 并且 行动力 允许
+					if n.Property.Mp != 0 && p.MovePower-n.Property.Mp > 0 {
 
-	// 不在close
-	if _, ok := paths[tiled.GetKey(u.X, u.Y)]; !ok {
-		// 不在open 中 加入 队列
-		if !containsKey(tiled.GetKey(u.X, u.Y)) {
-			// 检查 当前地图块是否可用
-			tile := tiled.Tiles[tiled.GetKey(u.X, u.Y)]
-			// 当前地图块 必须是移动 并且 行动力 允许
-			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
-				u.movePower = p.movePower - tile.Property.Mp
-				push(u)
-			}
+						np := &Path{
+							X: x,
+							Y: y,
 
-		}
-	}
-	if _, ok := paths[tiled.GetKey(d.X, d.Y)]; !ok {
-		if !containsKey(tiled.GetKey(d.X, d.Y)) {
-			// 检查 当前地图块是否可用
-			tile := tiled.Tiles[tiled.GetKey(d.X, d.Y)]
-			// 当前地图块 必须是移动 并且 行动力 允许
-			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
-				d.movePower = p.movePower - tile.Property.Mp
-				push(d)
-			}
-		}
-	}
-	if _, ok := paths[tiled.GetKey(l.X, l.Y)]; !ok {
-		if !containsKey(tiled.GetKey(l.X, l.Y)) {
-			// 检查 当前地图块是否可用
-			tile := tiled.Tiles[tiled.GetKey(l.X, l.Y)]
-			// 当前地图块 必须是移动 并且 行动力 允许
-			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
-				l.movePower = p.movePower - tile.Property.Mp
-				push(l)
-			}
-		}
-	}
-	if _, ok := paths[tiled.GetKey(r.X, r.Y)]; !ok {
-		if !containsKey(tiled.GetKey(r.X, r.Y)) {
-			// 检查 当前地图块是否可用
-			tile := tiled.Tiles[tiled.GetKey(r.X, r.Y)]
-			// 当前地图块 必须是移动 并且 行动力 允许
-			if tile.Property.Mp != 0 && p.movePower-tile.Property.Mp > 0 {
-				r.movePower = p.movePower - tile.Property.Mp
-				push(r)
+							PX: p.X,
+							PY: p.Y,
+
+							MovePower: p.MovePower - n.Property.Mp,
+						}
+
+						push(np)
+					}
+				}
 			}
 		}
 	}
@@ -265,14 +227,7 @@ func (p *Path) Draw(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
 		op.GeoM.Scale(common.Scale, common.Scale)
-		//screen.DrawImage(c.img_status1[(c.Count/5)%4], op)
-		//screen.DrawImage(p.image.SubImage(image.Rect(19, 10, 35, 26)).(*ebiten.Image), op)
-
-		//screen.DrawImage(p.image.SubImage(image.Rect(0, 0, 10, 10)).(*ebiten.Image), op)
 		screen.DrawImage(p.image, op)
-
-		//v, i := rect(float32(v.X*16), float32(v.Y*16)+float32(common.OffsetY), 16, 16, color.RGBA{0x00, 0x80, 0x00, 0x80})
-		//screen.DrawTriangles(v, i, p.image, nil)
 	}
 
 	// 攻击范围
@@ -284,13 +239,6 @@ func (p *Path) Draw(screen *ebiten.Image) {
 	}
 
 	// 移动路径
-	//for _, v := range smovepath {
-	//	op := &ebiten.DrawImageOptions{}
-	//	op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
-	//	op.GeoM.Scale(common.Scale, common.Scale)
-	//	screen.DrawImage(p.imgMove, op)
-	//}
-
 	for i := MovepathList.Front(); i != nil; i = i.Next() {
 
 		op := &ebiten.DrawImageOptions{}
