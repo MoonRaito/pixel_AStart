@@ -28,6 +28,9 @@ type Path struct {
 	MovePower int
 }
 
+// 显示true或隐藏false
+var IsShow bool
+
 // close
 var paths map[string]*Path
 
@@ -56,10 +59,14 @@ func Init() {
 		imgAttack: imgAttack,
 		imgMove:   imgMove,
 	}
+
+	Roles_XY = make(map[string]string)
+
+	IsShow = true
 }
 
 // 所有路径
-func (p *Path) Find(x, y int) {
+func (p *Path) Find(x, y, attackRange int) {
 
 	// close
 	paths = make(map[string]*Path)
@@ -88,35 +95,13 @@ func (p *Path) Find(x, y int) {
 		}
 	}
 
-	findAttack()
+	findAttack(attackRange)
 
 	fmt.Println(time.Now())
-	//go func() {
-	//	for {
-	//
-	//		// 500 毫秒
-	//		time.Sleep(time.Duration(100)*time.Millisecond)
-	//		fmt.Println("")
-	//		fmt.Println("************************")
-	//		fmt.Println(time.Now())
-	//
-	//		fmt.Println("open:"+strconv.Itoa(patch.Size()))
-	//		fmt.Println("close:"+strconv.Itoa(len(paths)))
-	//		if !findPath() {
-	//			break
-	//		}
-	//		fmt.Println("open:"+strconv.Itoa(patch.Size()))
-	//		fmt.Println("close:"+strconv.Itoa(len(paths)))
-	//
-	//		// 一秒
-	//		//time.Sleep(time.Duration(1)*time.Second)
-	//		//time.Sleep(2e9)
-	//		fmt.Println(time.Now())
-	//		fmt.Println("************************")
-	//		fmt.Println("")
-	//	}
-	//}()
+
 }
+
+var Roles_XY map[string]string
 
 func findPath() bool {
 
@@ -137,6 +122,11 @@ func findPath() bool {
 		if n := _map.Worlds.Tile(p.X+offset[0], p.Y+offset[1]); n != nil {
 			x := n.X / common.TileSize
 			y := n.Y / common.TileSize
+
+			if _, ok := Roles_XY[tiled.GetKey(x, y)]; ok {
+				continue
+			}
+
 			// 不在open 和 close 中
 			if _, ok := paths[tiled.GetKey(x, y)]; !ok {
 				if !containsKey(tiled.GetKey(x, y)) {
@@ -163,30 +153,38 @@ func findPath() bool {
 	return true
 }
 
-func findAttack() bool {
+func findAttack(ar int) bool {
 	attackRange = make(map[string]*Path)
+
 	// 循环路径
 	for _, v := range paths {
 
-		// 简易计算 只有一格攻击力
+		// 简易计算 只有一格或者两格
+		for _, offset := range [][]int{
+			{-ar, 0},
+			{ar, 0},
+			{0, -ar},
+			{0, ar},
+		} {
+			if n := _map.Worlds.Tile(v.X+offset[0], v.Y+offset[1]); n != nil {
+				x := n.X / common.TileSize
+				y := n.Y / common.TileSize
 
-		// 上下左右 是否在 路径中
-		u := NewPathByPare(v, 1)
-		d := NewPathByPare(v, 2)
-		l := NewPathByPare(v, 3)
-		r := NewPathByPare(v, 4)
-		if _, ok := paths[tiled.GetKey(u.X, u.Y)]; !ok {
-			attackRange[tiled.GetKey(u.X, u.Y)] = u
+				if _, ok := Roles_XY[tiled.GetKey(x, y)]; ok {
+					continue
+				}
+
+				if _, ok := paths[tiled.GetKey(x, y)]; !ok {
+					p := &Path{
+						X: x,
+						Y: y,
+					}
+					attackRange[tiled.GetKey(x, y)] = p
+				}
+
+			}
 		}
-		if _, ok := paths[tiled.GetKey(d.X, d.Y)]; !ok {
-			attackRange[tiled.GetKey(d.X, d.Y)] = d
-		}
-		if _, ok := paths[tiled.GetKey(l.X, l.Y)]; !ok {
-			attackRange[tiled.GetKey(l.X, l.Y)] = l
-		}
-		if _, ok := paths[tiled.GetKey(r.X, r.Y)]; !ok {
-			attackRange[tiled.GetKey(r.X, r.Y)] = r
-		}
+
 	}
 	return true
 }
@@ -222,29 +220,31 @@ func NewPathByPare(pare *Path, t int) *Path {
 
 // 画路径
 func (p *Path) Draw(screen *ebiten.Image) {
-	// close
-	for _, v := range paths {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
-		op.GeoM.Scale(common.Scale, common.Scale)
-		screen.DrawImage(p.image, op)
-	}
+	if IsShow {
+		// close
+		for _, v := range paths {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
+			op.GeoM.Scale(common.Scale, common.Scale)
+			screen.DrawImage(p.image, op)
+		}
 
-	// 攻击范围
-	for _, v := range attackRange {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
-		op.GeoM.Scale(common.Scale, common.Scale)
-		screen.DrawImage(p.imgAttack, op)
-	}
+		// 攻击范围
+		for _, v := range attackRange {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(v.X*16)+1, float64(v.Y*16)+1+float64(common.OffsetY))
+			op.GeoM.Scale(common.Scale, common.Scale)
+			screen.DrawImage(p.imgAttack, op)
+		}
 
-	// 移动路径
-	for i := MovepathList.Front(); i != nil; i = i.Next() {
+		// 移动路径
+		for i := MovepathList.Front(); i != nil; i = i.Next() {
 
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(i.Value.(*Path).X*16)+1, float64(i.Value.(*Path).Y*16)+1+float64(common.OffsetY))
-		op.GeoM.Scale(common.Scale, common.Scale)
-		screen.DrawImage(p.imgMove, op)
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(i.Value.(*Path).X*16)+1, float64(i.Value.(*Path).Y*16)+1+float64(common.OffsetY))
+			op.GeoM.Scale(common.Scale, common.Scale)
+			screen.DrawImage(p.imgMove, op)
+		}
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/igame/cursor"
 	"pixel_AStart/ebiten/igame/path"
+	"pixel_AStart/ebiten/queue"
 )
 
 type Sprite struct {
@@ -40,7 +41,7 @@ type Sprite struct {
 	// 需要移动到
 	MoveX, MoveY           float64
 	MoveNumber             float64
-	MoveStartX, MoveStartY float64
+	MoveStartX, MoveStartY int
 	MoveEndX, MoveEndY     float64
 
 	// 移动速度
@@ -48,11 +49,8 @@ type Sprite struct {
 
 	movePower int
 
-	// 路径  close
-	Paths map[string]*path.Path
-
-	// 攻击范围 open
-	AttackRange map[string]*path.Path
+	// 攻击范围 1为1格 2为两格
+	AttackRange int
 }
 
 func (s *Sprite) FindPath(x, y int) {
@@ -79,6 +77,13 @@ func (s *Sprite) Update(dt float64) {
 		}
 	}
 
+	// 光标选中和移开
+	s.cursorSelect()
+
+}
+
+// 光标选中和移开时
+func (s *Sprite) cursorSelect() {
 	// 是否被光标 指向
 	// 光标 是否选中 精灵
 	if cursor.Icursor.X == s.X && cursor.Icursor.Y == s.Y {
@@ -92,7 +97,6 @@ func (s *Sprite) Update(dt float64) {
 			s.Status = 1
 		}
 	}
-
 }
 
 func (s *Sprite) Draw(screen *ebiten.Image) {
@@ -110,9 +114,13 @@ func (s *Sprite) Draw(screen *ebiten.Image) {
 	}
 
 	// 开始移动角色
-	//	if s.Status == 4 {
-	//		s.UpdateMove(screen)
-	//	}
+	if s.Status == 10 {
+		s.UpdateMove(screen)
+	}
+	// 移动完成
+	if s.Status == 4 {
+		s.MoveFinish(screen)
+	}
 }
 
 func (c *Sprite) status1(screen *ebiten.Image) {
@@ -162,4 +170,112 @@ func (c *Sprite) status3(screen *ebiten.Image) {
 	op.GeoM.Translate(float64(c.X)-1, float64(c.Y)-5+float64(common.OffsetY))
 	op.GeoM.Scale(c.Scale, c.Scale)
 	screen.DrawImage(c.ImgStatus3[(c.Count/10)%4], op)
+}
+
+// 移动
+var Moving = queue.NewQueue()
+
+func (c *Sprite) Moving() {
+	d := 0
+	for i := path.MovepathList.Front(); i != nil; i = i.Next() {
+		if d == 0 {
+			d++
+			continue
+		}
+		Moving.EnQueue(i.Value.(*path.Path))
+	}
+}
+func (c *Sprite) MoveTo() bool {
+	// 取第一个
+	p := Moving.DeQueue()
+
+	if p == nil {
+		// 设置 角色位置 为终点
+		c.X = int(c.MoveEndX)
+		c.Y = int(c.MoveEndY)
+		return false
+	}
+
+	X := p.(*path.Path).X * 16
+	Y := p.(*path.Path).Y * 16
+
+	c.MoveEndX = float64(X)
+	c.MoveEndY = float64(Y)
+
+	return true
+}
+
+var moveLast int
+
+func (c *Sprite) UpdateMove(screen *ebiten.Image) {
+
+	// 到达指定节点后 开始下一个
+	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
+		// 到达终点
+		if !c.MoveTo() {
+			c.Status = 4
+			// 隐藏路径
+			//未实现
+
+			return
+		}
+	}
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(c.MoveX-1, c.MoveY-5+float64(common.OffsetY))
+	op.GeoM.Scale(c.Scale, c.Scale)
+	// 下
+	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) < int(c.MoveEndY) {
+		c.MoveY = c.MoveY + (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.ImgStatus3[(c.Count/10)%4], op)
+		moveLast = 1
+	}
+
+	// 上
+	if int(c.MoveX) == int(c.MoveEndX) && int(c.MoveY) > int(c.MoveEndY) {
+		c.MoveY = c.MoveY - (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.ImgStatus4[(c.Count/10)%4], op)
+		moveLast = 2
+	}
+
+	// 左
+	if int(c.MoveX) > int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
+		c.MoveX = c.MoveX - (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.ImgStatus5[(c.Count/10)%4], op)
+		moveLast = 3
+	}
+
+	// 右
+	if int(c.MoveX) < int(c.MoveEndX) && int(c.MoveY) == int(c.MoveEndY) {
+		c.MoveX = c.MoveX + (c.MoveSpeed * c.dt)
+		screen.DrawImage(c.ImgStatus6[(c.Count/10)%4], op)
+		moveLast = 4
+	}
+
+}
+func (c *Sprite) MoveFinish(screen *ebiten.Image) {
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(c.MoveX-1, c.MoveY-5+float64(common.OffsetY))
+	op.GeoM.Scale(c.Scale, c.Scale)
+	// 下
+	if moveLast == 1 {
+		screen.DrawImage(c.ImgStatus3[(c.Count/10)%4], op)
+	}
+
+	// 上
+	if moveLast == 2 {
+		screen.DrawImage(c.ImgStatus4[(c.Count/10)%4], op)
+	}
+
+	// 左
+	if moveLast == 3 {
+		screen.DrawImage(c.ImgStatus5[(c.Count/10)%4], op)
+	}
+
+	// 右
+	if moveLast == 4 {
+		screen.DrawImage(c.ImgStatus6[(c.Count/10)%4], op)
+	}
+
 }

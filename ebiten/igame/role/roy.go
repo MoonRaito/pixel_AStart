@@ -17,7 +17,7 @@ func Init_roy() *role.Sprite {
 
 	sprite := role.Sprite{}
 
-	sprite.Name = "sprite"
+	sprite.Name = "roy"
 	sprite.Image = img
 
 	// 初始位置
@@ -28,6 +28,7 @@ func Init_roy() *role.Sprite {
 	sprite.Scale = common.Scale
 	sprite.Status = 1
 	sprite.MoveSpeed = 0.1
+	sprite.AttackRange = 1
 
 	sprite.ImgStatus1 = make([]*ebiten.Image, 3)
 	sprite.ImgStatus1[0] = img.SubImage(image.Rect(115, 13, 131, 29)).(*ebiten.Image)

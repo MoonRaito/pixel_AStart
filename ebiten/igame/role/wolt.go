@@ -28,6 +28,7 @@ func Init_wolt() *role.Sprite {
 	sprite.Scale = common.Scale
 	sprite.Status = 1
 	sprite.MoveSpeed = 0.1
+	sprite.AttackRange = 2
 
 	// 16 像素
 	sprite.ImgStatus1 = make([]*ebiten.Image, 3)
@@ -45,10 +46,10 @@ func Init_wolt() *role.Sprite {
 	// 宽 20
 	// 高 20
 	sprite.ImgStatus3 = make([]*ebiten.Image, 4)
-	sprite.ImgStatus3[0] = img.SubImage(image.Rect(7, 295, 38, 59)).(*ebiten.Image)
-	sprite.ImgStatus3[1] = img.SubImage(image.Rect(41, 295, 61, 59)).(*ebiten.Image)
-	sprite.ImgStatus3[2] = img.SubImage(image.Rect(66, 295, 86, 59)).(*ebiten.Image)
-	sprite.ImgStatus3[3] = img.SubImage(image.Rect(91, 295, 111, 59)).(*ebiten.Image)
+	sprite.ImgStatus3[0] = img.SubImage(image.Rect(7, 295, 27, 315)).(*ebiten.Image)
+	sprite.ImgStatus3[1] = img.SubImage(image.Rect(35, 295, 55, 315)).(*ebiten.Image)
+	sprite.ImgStatus3[2] = img.SubImage(image.Rect(61, 295, 81, 315)).(*ebiten.Image)
+	sprite.ImgStatus3[3] = img.SubImage(image.Rect(88, 295, 108, 315)).(*ebiten.Image)
 
 	// 移动上
 	sprite.ImgStatus4 = make([]*ebiten.Image, 4)
