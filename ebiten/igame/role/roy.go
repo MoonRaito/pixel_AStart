@@ -30,6 +30,10 @@ func Init_roy() *role.Sprite {
 	sprite.MoveSpeed = 0.1
 	sprite.AttackRange = 1
 
+	// 测试图片翻转
+	//sprite.ImgStatus1 = make([]*ebiten.Image, 3)
+	//a := util_image.Flip(img.SubImage(image.Rect(115, 13, 131, 29)).(*ebiten.Image))
+
 	sprite.ImgStatus1 = make([]*ebiten.Image, 3)
 	sprite.ImgStatus1[0] = img.SubImage(image.Rect(115, 13, 131, 29)).(*ebiten.Image)
 	sprite.ImgStatus1[1] = img.SubImage(image.Rect(135, 13, 151, 29)).(*ebiten.Image)
