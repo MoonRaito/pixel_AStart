@@ -7,7 +7,7 @@ import (
 	"pixel_AStart/ebiten/common"
 	"pixel_AStart/ebiten/igame"
 )
-
+// 我是入口
 func main() {
 	game, err := igame.NewGame()
 	if err != nil {
